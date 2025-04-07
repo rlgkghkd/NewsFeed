@@ -1,6 +1,6 @@
-package com.example.newsFeed.Users.service;
+package com.example.newsFeed.users.service;
 
-import com.example.newsFeed.Users.Repository.UserRepository;
+import com.example.newsFeed.users.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

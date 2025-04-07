@@ -1,6 +1,6 @@
-package com.example.newsFeed.Users.controller;
+package com.example.newsFeed.users.controller;
 
-import com.example.newsFeed.Users.service.UserService;
+import com.example.newsFeed.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
