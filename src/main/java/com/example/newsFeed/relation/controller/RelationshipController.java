@@ -18,23 +18,13 @@ public class RelationshipController {
     private final RelationshipService relationshipService;
 
     @PostMapping
-    public RelationshipResponseDto requestRelationship(@RequestBody CreateRelationshipRequestDto dto){
-        return relationshipService.sendRequest(dto.getFollowerId(), dto.getFollowingId());
+    public RelationshipResponseDto requestRelationship(@RequestBody CreateRelationshipRequestDto dto, HttpServletRequest request){
+        return relationshipService.sendRequest(dto.getFollowingId(), request);
     }
 
     @GetMapping
-    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request){
-        return relationshipService.findAllRelationship(request);
-    }
-
-    @GetMapping("/pending")
-    public List<RelationshipResponseDto> findAllPendingRequests(HttpServletRequest request){
-        return relationshipService.findAllPendingRequests(request);
-    }
-
-    @GetMapping("/sent")
-    public List<RelationshipResponseDto> findAllSentRequests(HttpServletRequest request){
-        return relationshipService.findAllSentRequests(request);
+    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request, @RequestParam(value = "type", required = false, defaultValue = "") String type){
+        return relationshipService.findRelationship(request, type);
     }
 
     @PatchMapping
@@ -44,6 +34,6 @@ public class RelationshipController {
 
     @DeleteMapping
     public void deleteRelationshipRequest(@RequestBody DeleteRelationshipRequestDto dto){
-        relationshipService.deleteRelationship(dto.getId());
+        relationshipService.deleteRelationship(dto.getRelationshipId());
     }
 }

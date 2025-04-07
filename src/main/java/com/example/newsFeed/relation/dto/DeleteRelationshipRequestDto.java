@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class DeleteRelationshipRequestDto {
-    private Long id;
+    private Long relationshipId;
 }

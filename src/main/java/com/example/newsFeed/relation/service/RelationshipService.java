@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,9 +21,11 @@ public class RelationshipService {
     private final RelationshipRepository relationshipRepository;
     private final UserRepository userRepository;
 
-    public RelationshipResponseDto sendRequest(Long reqId, Long targetId) {
+    public RelationshipResponseDto sendRequest(Long targetId, HttpServletRequest request) {
+        request.getHeader("Auto");
+        String name = "userName got from requestHeader";
 
-        User follower = userRepository.findById(reqId).orElseThrow();
+        User follower = userRepository.findById((long)1).orElseThrow();
         User following = userRepository.findById(targetId).orElseThrow();
 
         Relationship relationship = new Relationship(follower, following, true);
@@ -40,36 +43,26 @@ public class RelationshipService {
             relationshipRepository.delete(relationship);
         }
     }
+
     @Transactional
     public void deleteRelationship(Long id) {
         Relationship relationship = relationshipRepository.findById(id).orElseThrow();
         relationshipRepository.delete(relationship);
     }
 
-    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request) {
+    public List<RelationshipResponseDto> findRelationship(HttpServletRequest request, String type) {
         request.getHeader("Auto");
         String name = "userName got from requestHeader";
         User userFoundById = userRepository.findById((long) 1).orElseThrow();
-        List<Relationship> foundRel =relationshipRepository.findAllByFollowerOrFollowingOrElseThrow(userFoundById);
-        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "친구 리스트가 비었습니다.");}
-        return foundRel.stream().map(RelationshipResponseDto::new).toList();
-    }
 
-    public List<RelationshipResponseDto> findAllPendingRequests(HttpServletRequest request) {
-        request.getHeader("Auto");
-        String name = "userName got from requestHeader";
-        User userFoundById = userRepository.findById((long) 1).orElseThrow();
-        List<Relationship> foundRel = relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById);
-        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "처리하지 않은 요청이 없습니다.");}
-        return foundRel.stream().map(RelationshipResponseDto::new).toList();
-    }
+        List<Relationship> foundRel = switch (type) {
+            case "pending" -> relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById);
+            case "sent" -> relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById);
+            case "" -> relationshipRepository.findAllByFollowerOrFollowingOrElseThrow(userFoundById);
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바른 요청 파라미터가 아닙니다.");
+        };
 
-    public List<RelationshipResponseDto> findAllSentRequests(HttpServletRequest request) {
-        request.getHeader("Auto");
-        String name = "userName got from requestHeader";
-        User userFoundById = userRepository.findById((long) 1).orElseThrow();
-        List<Relationship> foundRel = relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById);
-        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "보낸 요청이 없습니다.");}
+        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "조회된 결과가 없습니다.");}
         return foundRel.stream().map(RelationshipResponseDto::new).toList();
     }
 }

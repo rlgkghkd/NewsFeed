@@ -7,6 +7,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CreateRelationshipRequestDto {
-    private Long followerId;
     private Long followingId;
 }
