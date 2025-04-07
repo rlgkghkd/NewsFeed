@@ -1,6 +1,6 @@
-package com.example.newsFeed.Boards.Service;
+package com.example.newsFeed.boards.service;
 
-import com.example.newsFeed.Boards.Repository.BoardRepository;
+import com.example.newsFeed.boards.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

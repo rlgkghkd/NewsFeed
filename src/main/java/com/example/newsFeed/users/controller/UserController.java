@@ -1,14 +1,13 @@
-package com.example.newsFeed.Boards.Controller;
+package com.example.newsFeed.users.controller;
 
-import com.example.newsFeed.Boards.Service.BoardService;
+import com.example.newsFeed.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/boards")
-public class BoardController {
-    private final BoardService boardService;
-
+@RequestMapping("/users")
+public class UserController {
+    private final UserService userService;
 }
