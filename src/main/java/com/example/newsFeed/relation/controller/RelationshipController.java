@@ -23,13 +23,18 @@ public class RelationshipController {
     }
 
     @GetMapping
-    public List<RelationshipResponseDto> findRelationship(HttpServletRequest request){
+    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request){
         return relationshipService.findAllRelationship(request);
     }
 
-    @GetMapping
+    @GetMapping("/pending")
     public List<RelationshipResponseDto> findAllPendingRequests(HttpServletRequest request){
         return relationshipService.findAllPendingRequests(request);
+    }
+
+    @GetMapping("/sent")
+    public List<RelationshipResponseDto> findAllSentRequests(HttpServletRequest request){
+        return relationshipService.findAllSentRequests(request);
     }
 
     @PatchMapping

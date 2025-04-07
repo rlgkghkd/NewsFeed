@@ -59,4 +59,11 @@ public class RelationshipService {
         User userFoundById = userRepository.findById((long) 1).orElseThrow();
         return relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById).stream().map(RelationshipResponseDto::new).toList();
     }
+
+    public List<RelationshipResponseDto> findAllSentRequests(HttpServletRequest request) {
+        request.getHeader("Auto");
+        String name = "userName got from requestHeader";
+        User userFoundById = userRepository.findById((long) 1).orElseThrow();
+        return relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById).stream().map(RelationshipResponseDto::new).toList();
+    }
 }

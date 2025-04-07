@@ -19,4 +19,9 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
     default List<Relationship> findAllByFollowingAndPendingIsTrueOrElseThrow(User user){
         return findAllByFollowingAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "처리되지 않은 요청이 없습니다."));
     }
+
+    Optional<List<Relationship>> findAllByFollowerAndPendingIsTrue(User user);
+    default List<Relationship> findAllByFollowerAndPendingIsTrueOrElseThrow(User user){
+        return findAllByFollowerAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "처리되지 않은 요청이 없습니다."));
+    }
 }
