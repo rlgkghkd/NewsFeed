@@ -1,12 +1,11 @@
-package com.example.snsstuff.entity;
+package com.example.newsFeed.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.context.annotation.Primary;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -15,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User extends Base{
+public class User extends Base {
 
     private String email;
     private String name;

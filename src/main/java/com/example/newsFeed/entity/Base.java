@@ -1,4 +1,4 @@
-package com.example.snsstuff.entity;
+package com.example.newsFeed.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
