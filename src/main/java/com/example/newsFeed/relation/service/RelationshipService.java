@@ -50,20 +50,26 @@ public class RelationshipService {
         request.getHeader("Auto");
         String name = "userName got from requestHeader";
         User userFoundById = userRepository.findById((long) 1).orElseThrow();
-        return relationshipRepository.findAllByFollowerOrFollowingOrElseThrow(userFoundById).stream().map(RelationshipResponseDto::new).toList();
+        List<Relationship> foundRel =relationshipRepository.findAllByFollowerOrFollowingOrElseThrow(userFoundById);
+        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "친구 리스트가 비었습니다.");}
+        return foundRel.stream().map(RelationshipResponseDto::new).toList();
     }
 
     public List<RelationshipResponseDto> findAllPendingRequests(HttpServletRequest request) {
         request.getHeader("Auto");
         String name = "userName got from requestHeader";
         User userFoundById = userRepository.findById((long) 1).orElseThrow();
-        return relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById).stream().map(RelationshipResponseDto::new).toList();
+        List<Relationship> foundRel = relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById);
+        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "처리하지 않은 요청이 없습니다.");}
+        return foundRel.stream().map(RelationshipResponseDto::new).toList();
     }
 
     public List<RelationshipResponseDto> findAllSentRequests(HttpServletRequest request) {
         request.getHeader("Auto");
         String name = "userName got from requestHeader";
         User userFoundById = userRepository.findById((long) 1).orElseThrow();
-        return relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById).stream().map(RelationshipResponseDto::new).toList();
+        List<Relationship> foundRel = relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById);
+        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "보낸 요청이 없습니다.");}
+        return foundRel.stream().map(RelationshipResponseDto::new).toList();
     }
 }
