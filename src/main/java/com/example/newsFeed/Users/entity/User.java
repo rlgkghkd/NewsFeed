@@ -17,7 +17,7 @@ public class User extends Base {
     private String email;
     private String name;
     private String password;
-    private LocalDateTime date;
+    private LocalDateTime date; //생년월일
     private String introduction;
     private boolean enable;
 
