@@ -1,5 +1,6 @@
 package com.example.newsFeed.users.service;
 
+import com.example.newsFeed.config.PasswordEncoder;
 import com.example.newsFeed.users.repository.UserRepository;
 import com.example.newsFeed.users.dto.UserResponseDto;
 import com.example.newsFeed.users.dto.UserUpdateRequestDto;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto findUserById(Long userId){
         User user = userRepository.findByIdOrElseThrow(userId);
@@ -30,7 +32,7 @@ public class UserService {
         }
         //비밀번호 변경
         if(updateDto.getCurrentPassword()!=null && updateDto.getUpdatePassword()!=null){
-            user.updatePassword(updateDto.getCurrentPassword(), updateDto.getUpdatePassword());
+            user.updatePassword(updateDto.getCurrentPassword(), updateDto.getUpdatePassword(), passwordEncoder);
         }
         //저장
         userRepository.save(user);

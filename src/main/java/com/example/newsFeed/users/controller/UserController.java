@@ -21,14 +21,15 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @PatchMapping()
+    @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUserInformation(
+            @PathVariable Long id,
             @Valid @RequestBody UserUpdateRequestDto updateDto,
             HttpServletRequest request
     ) {
-        //Token에 저장되어 있는 유저 아이디를 가져왔다고 가정하기
-        Long userId = 1L;
-        UserResponseDto responseDto = userService.updateUserInfo(userId, updateDto);
+        //Token에 저장되어 있는 유저 아이디를 가져와야 하지만
+        //일단 동작을 위해서 API 엔드포인트로 Id를 받아옴
+        UserResponseDto responseDto = userService.updateUserInfo(id, updateDto);
         return ResponseEntity.ok(responseDto);
     }
 }

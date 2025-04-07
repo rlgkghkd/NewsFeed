@@ -1,5 +1,6 @@
 package com.example.newsFeed.users.entity;
 
+import com.example.newsFeed.config.PasswordEncoder;
 import com.example.newsFeed.entity.Base;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,14 +32,14 @@ public class User extends Base {
     }
 
     //passwordEncorder 추가 필요
-    public void updatePassword(String currentPassword, String updatePassword){
-        if(!this.password.equals(currentPassword)){
+    public void updatePassword(String currentPassword, String updatePassword, PasswordEncoder passwordEncoder){
+        if(!passwordEncoder.matches(this.password, currentPassword)){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
-        if(this.password.equals(updatePassword)){
+        if(passwordEncoder.matches(this.password, updatePassword)){
             throw new IllegalArgumentException("현재 비밀번호와는 다른 비밀번호로 변경해주세요");
         }
-        this.password = updatePassword;
+        this.password = passwordEncoder.encode(updatePassword);
     }
 
     public void updateIntroduction(String introduction){
