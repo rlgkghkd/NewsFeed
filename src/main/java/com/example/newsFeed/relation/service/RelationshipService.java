@@ -37,6 +37,7 @@ public class RelationshipService {
     @Transactional
     public void responseRelationship(Long id, boolean response) {
         Relationship relationship = relationshipRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 id를 가진 유저가 없음. id : " + id));
+        if(relationship.getPending().equals(false)){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 처리된 요청입니다.");}
         if (response) {
             relationship.setPending(false);
         } else {
