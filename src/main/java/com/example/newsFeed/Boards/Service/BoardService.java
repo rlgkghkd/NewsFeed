@@ -1,6 +1,6 @@
-package com.example.newsFeed.service;
+package com.example.newsFeed.Boards.Service;
 
-import com.example.newsFeed.repository.BoardRepository;
+import com.example.newsFeed.Boards.Repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -8,4 +8,5 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
+
 }

@@ -1,5 +1,7 @@
-package com.example.newsFeed.entity;
+package com.example.newsFeed.Boards.entity;
 
+import com.example.newsFeed.entity.Base;
+import com.example.newsFeed.Users.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -14,7 +16,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Table(name = "boardT")
 @NoArgsConstructor
-public class Board extends Base{
+public class Board extends Base {
     @Setter
     @ManyToOne
     @JoinColumn(name = "user_id")

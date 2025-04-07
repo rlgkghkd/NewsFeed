@@ -1,6 +1,6 @@
-package com.example.newsFeed.service;
+package com.example.newsFeed.Users.service;
 
-import com.example.newsFeed.repository.UserRepository;
+import com.example.newsFeed.Users.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -8,4 +8,5 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+
 }
