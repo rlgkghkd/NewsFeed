@@ -1,6 +1,6 @@
 package com.example.newsFeed.Relation.entity;
 
-import com.example.newsFeed.Users.entity.User;
+import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.entity.Base;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;

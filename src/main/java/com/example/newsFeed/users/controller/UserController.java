@@ -1,8 +1,8 @@
-package com.example.newsFeed.Users.controller;
+package com.example.newsFeed.users.controller;
 
-import com.example.newsFeed.Users.dto.UserResponseDto;
-import com.example.newsFeed.Users.dto.UserUpdateRequestDto;
-import com.example.newsFeed.Users.service.UserService;
+import com.example.newsFeed.users.dto.UserResponseDto;
+import com.example.newsFeed.users.dto.UserUpdateRequestDto;
+import com.example.newsFeed.users.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

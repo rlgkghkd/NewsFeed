@@ -1,9 +1,9 @@
-package com.example.newsFeed.Users.service;
+package com.example.newsFeed.users.service;
 
-import com.example.newsFeed.Users.Repository.UserRepository;
-import com.example.newsFeed.Users.dto.UserResponseDto;
-import com.example.newsFeed.Users.dto.UserUpdateRequestDto;
-import com.example.newsFeed.Users.entity.User;
+import com.example.newsFeed.users.repository.UserRepository;
+import com.example.newsFeed.users.dto.UserResponseDto;
+import com.example.newsFeed.users.dto.UserUpdateRequestDto;
+import com.example.newsFeed.users.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

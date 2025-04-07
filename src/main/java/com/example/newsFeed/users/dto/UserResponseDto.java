@@ -1,6 +1,6 @@
-package com.example.newsFeed.Users.dto;
+package com.example.newsFeed.users.dto;
 
-import com.example.newsFeed.Users.entity.User;
+import com.example.newsFeed.users.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
