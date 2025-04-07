@@ -8,10 +8,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class RelationshipResponseDto {
+    private Long id;
     private String followerName;
     private String followingName;
 
     public RelationshipResponseDto(Relationship relationship) {
+        this.id = relationship.getId();
         this.followerName = relationship.getFollower().getName();
         this.followingName = relationship.getFollowing().getName();
     }

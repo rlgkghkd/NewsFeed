@@ -24,7 +24,12 @@ public class RelationshipController {
 
     @GetMapping
     public List<RelationshipResponseDto> findRelationship(HttpServletRequest request){
-        return relationshipService.findRelationship(request);
+        return relationshipService.findAllRelationship(request);
+    }
+
+    @GetMapping
+    public List<RelationshipResponseDto> findAllPendingRequests(HttpServletRequest request){
+        return relationshipService.findAllPendingRequests(request);
     }
 
     @PatchMapping

@@ -25,14 +25,10 @@ public class RelationshipService {
         User follower = userRepository.findById(reqId).orElseThrow();
         User following = userRepository.findById(targetId).orElseThrow();
 
-        Relationship relationship = new Relationship();
-        relationship.setFollower(follower);
-        relationship.setFollowing(following);
+        Relationship relationship = new Relationship(follower, following, true);
         Relationship saved = relationshipRepository.save(relationship);
         return new RelationshipResponseDto(saved);
     }
-
-
 
     @Transactional
     public void responseRelationship(Long id, boolean response) {
@@ -50,11 +46,17 @@ public class RelationshipService {
         relationshipRepository.delete(relationship);
     }
 
-    public List<RelationshipResponseDto> findRelationship(HttpServletRequest request) {
+    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request) {
         request.getHeader("Auto");
         String name = "userName got from requestHeader";
-        User userFoundByName = userRepository.findById((long) 1).orElseThrow();
-        List<Relationship> list =relationshipRepository.findAllByFollowerOrFollowingOrElseThrow(userFoundByName);
-        return list.stream().map(RelationshipResponseDto::new).toList();
+        User userFoundById = userRepository.findById((long) 1).orElseThrow();
+        return relationshipRepository.findAllByFollowerOrFollowingOrElseThrow(userFoundById).stream().map(RelationshipResponseDto::new).toList();
+    }
+
+    public List<RelationshipResponseDto> findAllPendingRequests(HttpServletRequest request) {
+        request.getHeader("Auto");
+        String name = "userName got from requestHeader";
+        User userFoundById = userRepository.findById((long) 1).orElseThrow();
+        return relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById).stream().map(RelationshipResponseDto::new).toList();
     }
 }
