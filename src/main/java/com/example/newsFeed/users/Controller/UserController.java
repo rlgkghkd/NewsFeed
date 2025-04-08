@@ -1,4 +1,4 @@
-package com.example.newsFeed.users.controller;
+package com.example.newsFeed.users.Controller;
 
 import com.example.newsFeed.users.service.UserService;
 import lombok.RequiredArgsConstructor;
