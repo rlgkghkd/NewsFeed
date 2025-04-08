@@ -1,23 +1,18 @@
-package com.example.newsFeed.jwt;
+package com.example.newsFeed.jwt.controller;
 
+import com.example.newsFeed.jwt.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
-import com.example.newsFeed.jwt.dto.LoginResponseDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.Token;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -26,11 +21,12 @@ import java.util.Optional;
 public class Controller {
 
     private final TokenUtils tokenUtils;
-
     @PostMapping
-public ResponseEntity<String> login () {
+    public ResponseEntity<String> login(@RequestBody LoginRequestDto requestDto) {
+
         Long id = 1L;
-      String accessToken = tokenUtils.createJwt(id);
+
+        String accessToken = tokenUtils.createJwt(id);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
@@ -46,7 +42,7 @@ public ResponseEntity<String> login () {
     }
 
     @GetMapping("/open")
-    public ResponseEntity<Long> open (HttpServletRequest request) {
+    public ResponseEntity<Long> open(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
         String token = Arrays.stream(cookies)
@@ -57,6 +53,6 @@ public ResponseEntity<String> login () {
 
         Long userIdFromToken = tokenUtils.getUserIdFromToken(token);
 
-return new  ResponseEntity<Long>(userIdFromToken, HttpStatus.OK);
+        return new ResponseEntity<Long>(userIdFromToken, HttpStatus.OK);
     }
 }

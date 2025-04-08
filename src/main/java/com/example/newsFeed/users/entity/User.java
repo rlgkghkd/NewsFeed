@@ -2,6 +2,7 @@ package com.example.newsFeed.users.entity;
 
 import com.example.newsFeed.config.PasswordEncoder;
 import com.example.newsFeed.entity.Base;
+import com.example.newsFeed.users.dto.UserSignUpRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,9 @@ public class User extends Base {
     private String introduction;
     private boolean enable;
 
+    public static User toEntity(UserSignUpRequestDto dto, String password, LocalDateTime date){
+        return new User(dto.getEmail(), dto.getName(), password, date, dto.getIntroduction(), true);
+    }
 
     public boolean isPasswordEqual(String password, PasswordEncoder passwordEncoder){
         return passwordEncoder.matches(this.password, password);
