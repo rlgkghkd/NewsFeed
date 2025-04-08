@@ -1,10 +1,9 @@
 package com.example.newsFeed.users.controller;
 
-import com.example.newsFeed.users.dto.UserResponseDto;
 import com.example.newsFeed.users.dto.UserUpdateRequestDto;
+import com.example.newsFeed.users.dto.UserResponseDto;
 import com.example.newsFeed.users.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +23,7 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUserInformation(
             @PathVariable Long id,
-            @Valid @RequestBody UserUpdateRequestDto updateDto,
+            @RequestBody UserUpdateRequestDto updateDto,
             HttpServletRequest request
     ) {
         //Token에 저장되어 있는 유저 아이디를 가져와야 하지만
