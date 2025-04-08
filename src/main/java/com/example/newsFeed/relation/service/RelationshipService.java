@@ -2,6 +2,7 @@ package com.example.newsFeed.relation.service;
 
 import com.example.newsFeed.relation.dto.RelationshipResponseDto;
 import com.example.newsFeed.relation.entity.Relationship;
+import com.example.newsFeed.relation.entity.RelationshipId;
 import com.example.newsFeed.relation.repository.RelationshipRepository;
 import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.users.repository.UserRepository;
@@ -11,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,19 +27,26 @@ public class RelationshipService {
         User follower = userRepository.findById((long)1).orElseThrow();
         User following = userRepository.findById(targetId).orElseThrow();
 
-        Relationship relationship = new Relationship(follower, following, true);
+        if (!relationshipRepository.findSpecificRelationship(follower, following).isEmpty()){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 요청입니다.");}
+
+        Relationship relationship = new Relationship(new RelationshipId(follower.getId(), following.getId()), follower, following, true);
         Relationship saved = relationshipRepository.save(relationship);
         return new RelationshipResponseDto(saved);
     }
 
     @Transactional
-    public void responseRelationship(Long id, boolean response) {
-        Relationship relationship = relationshipRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 id를 가진 유저가 없음. id : " + id));
-        if(relationship.getPending().equals(false)){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 처리된 요청입니다.");}
+    public void responseRelationship(Long followerId, boolean response, HttpServletRequest request) {
+        request.getHeader("Auto");
+        String name = "userName got from requestHeader";
+
+        User follower = userRepository.findById((long)1).orElseThrow();
+        User following = userRepository.findById(followerId).orElseThrow();
+        List<Relationship> relationship = relationshipRepository.findALLByFollowerAndFollowing(follower, following).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."));
+        if(relationship.get(0).getPending().equals(false)){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 처리된 요청입니다.");}
         if (response) {
-            relationship.setPending(false);
+            relationship.get(0).setPending(false);
         } else {
-            relationshipRepository.delete(relationship);
+            relationshipRepository.delete(relationship.get(0));
         }
     }
 
@@ -58,7 +64,7 @@ public class RelationshipService {
         List<Relationship> foundRel = switch (type) {
             case "pending" -> relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById);
             case "sent" -> relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById);
-            case "" -> relationshipRepository.findAllByFollowerOrFollowingOrElseThrow(userFoundById);
+            case "" -> relationshipRepository.findAllRelationshipByUserOrElseThrow(userFoundById);
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바른 요청 파라미터가 아닙니다.");
         };
 

@@ -7,14 +7,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class RelationshipResponseDto {
-    private Long id;
     private String followerName;
     private String followingName;
-    private Boolean pending;
+    private String status;
 
     public RelationshipResponseDto(Relationship relationship) {
         this.followerName = relationship.getFollower().getName();
         this.followingName = relationship.getFollowing().getName();
-        this.pending = relationship.getPending();
+        this.status = relationship.getPending()?"수락 대기중":"친구";
     }
 }

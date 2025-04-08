@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class ResponseRelationshipRequestDto {
-    private Long id;
+    private Long followerId;
     private boolean response;
 }

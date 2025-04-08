@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @Table(name = "relationship")
 @NoArgsConstructor
+@AllArgsConstructor
 @Setter
 public class Relationship {
 
@@ -24,10 +25,4 @@ public class Relationship {
     private User following;
 
     private Boolean pending;
-
-    public Relationship(User follower, User following, Boolean pending) {
-        this.follower = follower;
-        this.following = following;
-        this.pending = pending;
-    }
 }

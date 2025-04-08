@@ -10,10 +10,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RelationshipRepository extends JpaRepository<Relationship, Long> {
+
+
+
     Optional<List<Relationship>> findAllByFollowerOrFollowing(User user, User user2);
-    default List<Relationship> findAllByFollowerOrFollowingOrElseThrow(User user){
+    default List<Relationship> findAllRelationshipByUserOrElseThrow(User user){
         return findAllByFollowerOrFollowing(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
+
+    Optional<List<Relationship>> findALLByFollowerAndFollowing(User user, User user2);
+    default List<Relationship> findSpecificRelationship(User user, User user2){
+        if(!findALLByFollowerAndFollowing(user, user2).orElseThrow().isEmpty()){return findALLByFollowerAndFollowing(user, user2).orElseThrow();}
+        else {return findALLByFollowerAndFollowing(user2, user).orElseThrow();}
+    }
+
 
     Optional<List<Relationship>> findAllByFollowingAndPendingIsTrue(User following);
     default List<Relationship> findAllByFollowingAndPendingIsTrueOrElseThrow(User user){

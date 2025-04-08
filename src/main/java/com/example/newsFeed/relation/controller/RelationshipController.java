@@ -28,8 +28,8 @@ public class RelationshipController {
     }
 
     @PatchMapping
-    public void responseRelationshipRequest(@RequestBody ResponseRelationshipRequestDto dto){
-        relationshipService.responseRelationship(dto.getId(), dto.isResponse());
+    public void responseRelationshipRequest(@RequestBody ResponseRelationshipRequestDto dto, HttpServletRequest request){
+        relationshipService.responseRelationship(dto.getFollowerId(), dto.isResponse(), request);
     }
 
     @DeleteMapping
