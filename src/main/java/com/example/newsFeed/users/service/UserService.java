@@ -1,5 +1,8 @@
 package com.example.newsFeed.users.service;
 
+import com.example.newsFeed.global.exception.CustomException;
+import com.example.newsFeed.global.exception.Errors;
+import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.users.dto.*;
 import com.example.newsFeed.users.repository.UserRepository;
 import com.example.newsFeed.users.entity.User;
@@ -62,4 +65,16 @@ public class UserService {
         user.updateEnableFalse();
         userRepository.save(user);
     }
+
+    public Long login(LoginRequestDto requestDto) {
+
+        User user = userRepository.findUserByEmailOrElseThrow(requestDto.getEmail());
+
+        if(!user.checkPasswordEqual(requestDto.getPassword())) {
+            throw new CustomException(Errors.INVALID_PASSWORD);
+        }
+
+        return user.getId();
+    }
+
 }
