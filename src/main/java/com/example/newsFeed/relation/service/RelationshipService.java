@@ -39,9 +39,10 @@ public class RelationshipService {
         request.getHeader("Auto");
         String name = "userName got from requestHeader";
 
-        User follower = userRepository.findById((long)1).orElseThrow();
-        User following = userRepository.findById(followerId).orElseThrow();
+        User follower = userRepository.findById(followerId).orElseThrow();
+        User following = userRepository.findById((long)1).orElseThrow();
         List<Relationship> relationship = relationshipRepository.findALLByFollowerAndFollowing(follower, following).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."));
+        if(relationship.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "없는 요청입니다.");}
         if(relationship.get(0).getPending().equals(false)){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 처리된 요청입니다.");}
         if (response) {
             relationship.get(0).setPending(false);
@@ -51,8 +52,10 @@ public class RelationshipService {
     }
 
     @Transactional
-    public void deleteRelationship(Long id) {
-        Relationship relationship = relationshipRepository.findById(id).orElseThrow();
+    public void deleteRelationship(Long otherId, HttpServletRequest request) {
+        User me = userRepository.findById((long)1).orElseThrow();
+        User other =  userRepository.findById(otherId).orElseThrow();
+        Relationship relationship = relationshipRepository.findSpecificRelationship(me, other).get(0);
         relationshipRepository.delete(relationship);
     }
 

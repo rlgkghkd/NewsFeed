@@ -33,7 +33,7 @@ public class RelationshipController {
     }
 
     @DeleteMapping
-    public void deleteRelationshipRequest(@RequestBody DeleteRelationshipRequestDto dto){
-        relationshipService.deleteRelationship(dto.getRelationshipId());
+    public void deleteRelationshipRequest(@RequestBody DeleteRelationshipRequestDto dto, HttpServletRequest request){
+        relationshipService.deleteRelationship(dto.getOthersId(), request);
     }
 }
