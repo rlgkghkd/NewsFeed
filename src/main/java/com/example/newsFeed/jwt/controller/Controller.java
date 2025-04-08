@@ -1,25 +1,16 @@
 package com.example.newsFeed.jwt.controller;
 
-import com.example.newsFeed.config.PasswordEncoder;
 import com.example.newsFeed.jwt.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.jwt.dto.LoginResponseDto;
-import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.users.service.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 
 @RequiredArgsConstructor
@@ -32,11 +23,11 @@ public class Controller {
 
 
     @PostMapping
-public ResponseEntity<LoginResponseDto> login (LoginRequestDto requestDto) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto) {
 
         Long id = userService.login(requestDto);
 
-      String accessToken = tokenUtils.createJwt(id);
+        String accessToken = tokenUtils.createJwt(id);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
