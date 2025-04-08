@@ -1,4 +1,4 @@
-package com.example.newsFeed.users.Controller;
+package com.example.newsFeed.users.controller;
 
 import com.example.newsFeed.users.dto.*;
 import com.example.newsFeed.users.service.UserService;

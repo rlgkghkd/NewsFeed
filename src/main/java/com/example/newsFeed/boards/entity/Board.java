@@ -1,6 +1,6 @@
-package com.example.newsFeed.Boards.entity;
+package com.example.newsFeed.boards.entity;
 
-import com.example.newsFeed.Boards.dto.BoardRequestDto;
+import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.entity.Base;
 import com.example.newsFeed.users.entity.User;
 import jakarta.persistence.Entity;

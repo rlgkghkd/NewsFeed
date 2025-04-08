@@ -1,10 +1,10 @@
-package com.example.newsFeed.Boards.Service;
+package com.example.newsFeed.boards.service;
 
-import com.example.newsFeed.Boards.dto.BoardListResponseDto;
-import com.example.newsFeed.Boards.dto.BoardRequestDto;
-import com.example.newsFeed.Boards.repository.BoardRepository;
-import com.example.newsFeed.Boards.dto.BoardResponseDto;
-import com.example.newsFeed.Boards.entity.Board;
+import com.example.newsFeed.boards.dto.BoardListResponseDto;
+import com.example.newsFeed.boards.dto.BoardRequestDto;
+import com.example.newsFeed.boards.repository.BoardRepository;
+import com.example.newsFeed.boards.dto.BoardResponseDto;
+import com.example.newsFeed.boards.entity.Board;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -1,9 +1,9 @@
-package com.example.newsFeed.Boards.Controller;
+package com.example.newsFeed.boards.controller;
 
-import com.example.newsFeed.Boards.Service.BoardService;
-import com.example.newsFeed.Boards.dto.BoardListResponseDto;
-import com.example.newsFeed.Boards.dto.BoardRequestDto;
-import com.example.newsFeed.Boards.dto.BoardResponseDto;
+import com.example.newsFeed.boards.service.BoardService;
+import com.example.newsFeed.boards.dto.BoardListResponseDto;
+import com.example.newsFeed.boards.dto.BoardRequestDto;
+import com.example.newsFeed.boards.dto.BoardResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
