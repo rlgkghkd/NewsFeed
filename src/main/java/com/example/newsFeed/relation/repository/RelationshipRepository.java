@@ -12,13 +12,15 @@ import java.util.Optional;
 public interface RelationshipRepository extends JpaRepository<Relationship, Long> {
 
 
-
     Optional<List<Relationship>> findAllByFollowerOrFollowing(User user, User user2);
+    //유저와 연관된 모든 요청 조회
     default List<Relationship> findAllRelationshipByUserOrElseThrow(User user){
         return findAllByFollowerOrFollowing(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    //요청을 보낸 유저와 받은 유저를 지정하여 조회
     Optional<List<Relationship>> findALLByFollowerAndFollowing(User user, User user2);
+    //두 유저가 같이 연관된 모든 요청 조회
     default List<Relationship> findSpecificRelationship(User user, User user2){
         if(!findALLByFollowerAndFollowing(user, user2).orElseThrow().isEmpty()){return findALLByFollowerAndFollowing(user, user2).orElseThrow();}
         else {return findALLByFollowerAndFollowing(user2, user).orElseThrow();}
@@ -26,6 +28,7 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
 
 
     Optional<List<Relationship>> findAllByFollowingAndPendingIsTrue(User following);
+    //
     default List<Relationship> findAllByFollowingAndPendingIsTrueOrElseThrow(User user){
         return findAllByFollowingAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
