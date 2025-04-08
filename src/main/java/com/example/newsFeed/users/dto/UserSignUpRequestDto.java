@@ -5,6 +5,8 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 @AllArgsConstructor
 public class UserSignUpRequestDto {
@@ -23,8 +25,8 @@ public class UserSignUpRequestDto {
     private String password;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Past(message = "생년월일은 과거 날짜여야 합니다.")
-    private String date;
+    //@Past(message = "생년월일은 과거 날짜여야 합니다.")
+    private LocalDate date;
 
     //공백 가능
     private String introduction;
