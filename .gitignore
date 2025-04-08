@@ -5,7 +5,11 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 **src/main/resources/application.properties
+**src/main/java/com/example/newsFeed/global/filter/LoginFilter.java
+<<<<<<< HEAD
 
+=======
+>>>>>>> a0daa437bbd665795405705d1d964f7df1b7fe88
 ### STS ###
 .apt_generated
 .classpath
@@ -18,7 +22,6 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -27,7 +30,6 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
 
 ### NetBeans ###
 /nbproject/private/
