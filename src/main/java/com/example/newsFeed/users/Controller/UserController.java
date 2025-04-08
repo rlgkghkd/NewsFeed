@@ -1,9 +1,6 @@
 package com.example.newsFeed.users.Controller;
 
-import com.example.newsFeed.users.dto.UserPasswordRequestDto;
-import com.example.newsFeed.users.dto.UserSignUpRequestDto;
-import com.example.newsFeed.users.dto.UserUpdateRequestDto;
-import com.example.newsFeed.users.dto.UserResponseDto;
+import com.example.newsFeed.users.dto.*;
 import com.example.newsFeed.users.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -20,9 +17,9 @@ public class UserController {
 
     //회원가입
     @PostMapping()
-    public ResponseEntity<Void> signUp(@Valid @RequestBody UserSignUpRequestDto signUpDto){
+    public ResponseEntity<String> signUp(@Valid @RequestBody UserSignUpRequestDto signUpDto){
         userService.signUp(signUpDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body("회원가입에 성공했습니다.");
     }
 
     //유저 아이디 기반 단일 유저 조회
@@ -34,7 +31,7 @@ public class UserController {
 
     //Token에 저장되어 있는 유저 아이디를 가져와야 하지만
     //일단 동작을 위해서 API 엔드포인트로 Id를 받아옴
-    @PutMapping("'/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUserInfo(
             @PathVariable Long id,
             @RequestBody UserUpdateRequestDto updateDto,
@@ -46,12 +43,20 @@ public class UserController {
 
     //비밀번호 수정
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateUserPassword(
+    public ResponseEntity<String> updateUserPassword(
             @PathVariable Long id,
             @RequestBody UserPasswordRequestDto passwordDto,
             HttpServletRequest request
     ) {
         userService.updateUserPassword(id, passwordDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("비밀번호가 변경되었습니다.");
+    }
+
+    //회원탈퇴
+    @PatchMapping("/resign")
+    public ResponseEntity<String> resignUser(@RequestBody UserDeleteRequestDto deleteDto){
+        Long id = 5L;
+        userService.resignUser(id, deleteDto);
+        return ResponseEntity.ok().body("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
     }
 }
