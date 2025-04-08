@@ -1,6 +1,5 @@
-package com.example.newsFeed.Boards.dto;
+package com.example.newsFeed.boards.dto;
 
-import com.example.newsFeed.Boards.entity.Board;
 import lombok.Getter;
 
 @Getter

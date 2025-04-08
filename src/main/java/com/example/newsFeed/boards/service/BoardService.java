@@ -1,10 +1,12 @@
-package com.example.newsFeed.Boards.Service;
+package com.example.newsFeed.boards.service;
 
-import com.example.newsFeed.Boards.dto.BoardListResponseDto;
-import com.example.newsFeed.Boards.dto.BoardRequestDto;
-import com.example.newsFeed.Boards.repository.BoardRepository;
-import com.example.newsFeed.Boards.dto.BoardResponseDto;
-import com.example.newsFeed.Boards.entity.Board;
+import com.example.newsFeed.boards.dto.BoardListResponseDto;
+import com.example.newsFeed.boards.dto.BoardRequestDto;
+import com.example.newsFeed.boards.repository.BoardRepository;
+import com.example.newsFeed.boards.dto.BoardResponseDto;
+import com.example.newsFeed.boards.entity.Board;
+import com.example.newsFeed.users.entity.User;
+import com.example.newsFeed.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final UserService userService;
 
     public List<BoardResponseDto> getBoardAll(){
         List<Board> result = boardRepository.findAll();
@@ -41,11 +44,7 @@ public class BoardService {
             page = 1;
         }
         page = page - 1;
-
-        int test1 = 5;
-        int test2 = 5;
-
-        Pageable pageable = PageRequest.of(test1,test2);
+        Pageable pageable = PageRequest.of(page,size);
 
         Page<Board> boards = boardRepository.findAll(pageable);
 
@@ -55,12 +54,8 @@ public class BoardService {
     public BoardResponseDto createBoard(BoardRequestDto dto, long userId) //Id필요
     {
         //검증 예외처리 추가 -> 예외처리를 Entity에서 할지, Service단에서 예외를 할지??
-
-        // User user 객체 필요
-        // User user = userService.findUserByID(memberId)
-        // Board board = new Board(dto, memberId)
-
-        Board board = new Board();
+        User user = userService.getUserById(userId);
+        Board board = new Board(dto, user);
         boardRepository.save(board);
         return new BoardResponseDto(board);
     }
@@ -73,9 +68,7 @@ public class BoardService {
         board.update(dto);
         return new BoardResponseDto(board);
     }
-
-
-//    public void deleteBoard(BoardRequestDto dto, long userId)
+    
     public void deleteBoard(long boardId, long userId)
     {
         //BoardId 존재여부 예외처리
@@ -84,6 +77,10 @@ public class BoardService {
         boardRepository.delete(board);
 
     }
+
+    /******************************
+     * 예외처리
+     ******************************/
 
 
 

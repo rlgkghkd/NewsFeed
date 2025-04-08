@@ -28,6 +28,11 @@ public class UserService {
         return UserResponseDto.toDto(user);
     }
 
+    //유저 아이디로 유저 Entity 찾아서 반환
+    public User getUserById(Long userId){
+        return userRepository.findByIdOrElseThrow(userId);
+    }
+
     public UserResponseDto updateUserInfo(Long userId, UserUpdateRequestDto updateDto){
         User user = userRepository.findByIdOrElseThrow(userId);
         //이름 변경

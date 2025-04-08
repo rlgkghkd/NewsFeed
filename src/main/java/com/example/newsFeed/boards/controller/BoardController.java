@@ -1,9 +1,10 @@
-package com.example.newsFeed.Boards.Controller;
+package com.example.newsFeed.boards.controller;
 
-import com.example.newsFeed.Boards.Service.BoardService;
-import com.example.newsFeed.Boards.dto.BoardListResponseDto;
-import com.example.newsFeed.Boards.dto.BoardRequestDto;
-import com.example.newsFeed.Boards.dto.BoardResponseDto;
+import com.example.newsFeed.boards.service.BoardService;
+import com.example.newsFeed.boards.dto.BoardListResponseDto;
+import com.example.newsFeed.boards.dto.BoardRequestDto;
+import com.example.newsFeed.boards.dto.BoardResponseDto;
+import com.example.newsFeed.jwt.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("/boards")
 public class BoardController {
     private final BoardService boardService;
+    private final TokenUtils tokenUtils;
 
     /***
      * 조회단건 GET{id} ㅇ
@@ -49,30 +51,30 @@ public class BoardController {
 
     //추가
     @PostMapping
-    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto) //JWT ID 값 필요
+    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto,
+                                                        @CookieValue(name = "accessToken", required = false) String token)
     {
-        long userId = 1;
-        BoardResponseDto dto = boardService.createBoard(boardRequestDto, userId);// service
+        Long userId = tokenUtils.getUserIdFromToken(token);
+        BoardResponseDto dto = boardService.createBoard(boardRequestDto, userId);
         return ResponseEntity.ok(dto);
     }
 
     //수정
-    //JWT userId값 수신방식에 따라서 파라미터로 할지 body로 할지, Filter 활용..?
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable long boardId, @RequestBody BoardRequestDto boardRequestDto)   //++userId
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable long boardId, @RequestBody BoardRequestDto boardRequestDto
+            , @CookieValue(name = "accessToken", required = false) String token)
     {
-        long userId = 1;
+        Long userId = tokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.updateBoard(boardRequestDto, boardId, userId);
         return ResponseEntity.ok(dto);
     }
 
-    
     //삭제
-    //JWT userId값 수신방식에 따라서 파라미터로 할지 body로 할지, Filter 활용..?
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deleteBoard(@PathVariable long boardId) // ++ userId
+    public ResponseEntity<String> deleteBoard(@PathVariable long boardId
+            , @CookieValue(name = "accessToken", required = false) String token)
     {
-        long userId = 1;
+        Long userId = tokenUtils.getUserIdFromToken(token);
         boardService.deleteBoard(boardId, userId);
         return ResponseEntity.ok("삭제완료");
     }
