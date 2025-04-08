@@ -55,7 +55,7 @@ public class RelationshipService {
         //요청을 보낸 유저
         User follower = userRepository.findById(followerId).orElseThrow();
         //요청을 받는 대상(임시 본인)
-        User following = userRepository.findById((long)1).orElseThrow();
+        User following = userRepository.findById((long)2).orElseThrow();
 
 
         List<Relationship> relationship = relationshipRepository.findALLByFollowerAndFollowing(follower, following).orElseThrow();
@@ -116,8 +116,9 @@ public class RelationshipService {
 
     //해당 유저의 모든 친구를 User 리스트 형태로 반환
     //친구는 요청을 승인한 유저만 포함.
-    public List<User> findAllFriends(User user){
-        List<Relationship> relationshipList = relationshipRepository.findAllByFollowerOrFollowingAndPendingIsFalseOrElseThrow(user);
+    public List<User> findAllFriends(){
+        User user = userRepository.findById((long) 1).orElseThrow();
+        List<Relationship> relationshipList = relationshipRepository.findAllAcceptedFriends(user);
         List<User> friends = new ArrayList<>();
         for (Relationship r : relationshipList){
             if(!r.getFollower().equals(user)){friends.add(r.getFollower());}
