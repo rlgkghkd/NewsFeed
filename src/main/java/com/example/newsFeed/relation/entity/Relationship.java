@@ -1,6 +1,5 @@
 package com.example.newsFeed.relation.entity;
 
-import com.example.newsFeed.entity.Base;
 import com.example.newsFeed.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,12 +9,16 @@ import lombok.*;
 @Table(name = "relationship")
 @NoArgsConstructor
 @Setter
-public class Relationship extends Base {
+public class Relationship {
 
+    @EmbeddedId
+    private RelationshipId id;
+
+    @MapsId("followerId")
     @ManyToOne
     @JoinColumn(name = "follower_id")
     private User follower;
-
+    @MapsId("followingId")
     @ManyToOne
     @JoinColumn(name = "following_id")
     private User following;

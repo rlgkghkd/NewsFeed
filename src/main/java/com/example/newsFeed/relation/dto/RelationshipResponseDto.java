@@ -3,7 +3,6 @@ package com.example.newsFeed.relation.dto;
 import com.example.newsFeed.relation.entity.Relationship;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -14,7 +13,6 @@ public class RelationshipResponseDto {
     private Boolean pending;
 
     public RelationshipResponseDto(Relationship relationship) {
-        this.id = relationship.getId();
         this.followerName = relationship.getFollower().getName();
         this.followingName = relationship.getFollowing().getName();
         this.pending = relationship.getPending();
