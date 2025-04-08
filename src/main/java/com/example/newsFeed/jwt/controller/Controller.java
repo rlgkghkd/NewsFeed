@@ -1,11 +1,11 @@
-package com.example.newsFeed.jwt;
+package com.example.newsFeed.jwt.controller;
 
+import com.example.newsFeed.jwt.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.jwt.dto.LoginResponseDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.Token;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -27,9 +26,12 @@ public class Controller {
 
     private final TokenUtils tokenUtils;
 
+
     @PostMapping
-public ResponseEntity<String> login () {
+public ResponseEntity<LoginResponseDto> login (LoginRequestDto requestDto) {
+
         Long id = 1L;
+
       String accessToken = tokenUtils.createJwt(id);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
@@ -42,7 +44,7 @@ public ResponseEntity<String> login () {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-                .body("로그인 되었습니다.");
+                .body(new LoginResponseDto("로그인 되었습니다."));
     }
 
     @GetMapping("/open")
