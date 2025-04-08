@@ -10,12 +10,10 @@ import lombok.NoArgsConstructor;
 @Getter
 public class LoginRequestDto {
 
-   @Pattern()
    @NotBlank(message = "이메일을 필수로 입력해주세요.")
    private final String email;
 
    @NotBlank(message = "비밀번호를 필수로 입력해주세요")
-   @Pattern()
    private final String password;
 
 }

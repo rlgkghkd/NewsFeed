@@ -3,11 +3,16 @@ package com.example.newsFeed.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
 
 @Component
@@ -56,5 +61,18 @@ public class TokenUtils {
             // 만료, 서명 오류 등
             throw new RuntimeException("Invalid JWT token", e);
         }
+    }
+
+    public String getAccessToken (HttpServletRequest request) {
+
+        Cookie[] cookies = request.getCookies();
+
+        String token = Arrays.stream(cookies)
+                .filter(cookie -> "accessToken".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+
+        return token;
     }
 }

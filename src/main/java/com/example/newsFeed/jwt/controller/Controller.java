@@ -1,8 +1,11 @@
 package com.example.newsFeed.jwt.controller;
 
+import com.example.newsFeed.config.PasswordEncoder;
 import com.example.newsFeed.jwt.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.jwt.dto.LoginResponseDto;
+import com.example.newsFeed.users.entity.User;
+import com.example.newsFeed.users.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +28,13 @@ import java.util.Arrays;
 public class Controller {
 
     private final TokenUtils tokenUtils;
+    private final UserService userService;
 
 
     @PostMapping
 public ResponseEntity<LoginResponseDto> login (LoginRequestDto requestDto) {
 
-        Long id = 1L;
+        Long id = userService.login(requestDto);
 
       String accessToken = tokenUtils.createJwt(id);
 
@@ -45,20 +49,5 @@ public ResponseEntity<LoginResponseDto> login (LoginRequestDto requestDto) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .body(new LoginResponseDto("로그인 되었습니다."));
-    }
-
-    @GetMapping("/open")
-    public ResponseEntity<Long> open (HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-
-        String token = Arrays.stream(cookies)
-                .filter(cookie -> "accessToken".equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
-
-        Long userIdFromToken = tokenUtils.getUserIdFromToken(token);
-
-return new  ResponseEntity<Long>(userIdFromToken, HttpStatus.OK);
     }
 }
