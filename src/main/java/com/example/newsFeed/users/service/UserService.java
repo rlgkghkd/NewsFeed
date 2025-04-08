@@ -1,5 +1,9 @@
 package com.example.newsFeed.users.service;
 
+import com.example.newsFeed.config.PasswordEncoder;
+import com.example.newsFeed.global.exception.CustomException;
+import com.example.newsFeed.global.exception.Errors;
+import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.users.dto.UserPasswordRequestDto;
 import com.example.newsFeed.users.dto.UserSignUpRequestDto;
 import com.example.newsFeed.users.repository.UserRepository;
@@ -8,12 +12,9 @@ import com.example.newsFeed.users.dto.UserUpdateRequestDto;
 import com.example.newsFeed.users.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class UserService {
         }
         //새로운 이메일이라면 저장
         //날짜 형식 변경 문자열 -> dateTime
-        LocalDateTime date = LocalDateTime.parse(signUpDto.getDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        LocalDateTime date = (signUpDto.getDate()).atStartOfDay();
         //비밀번호 암호화 후 생성
         User user = User.toEntity(signUpDto, date);
         userRepository.save(user);
@@ -57,4 +58,15 @@ public class UserService {
         }
         user.updatePassword(passwordDto.getUpdatePassword());
     }
+    public Long login(LoginRequestDto requestDto) {
+
+        User user = userRepository.findUserByEmailOrElseThrow(requestDto.getEmail());
+
+        if(!PasswordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new CustomException(Errors.INVALID_PASSWORD);
+        }
+
+        return user.getId();
+    }
+
 }
