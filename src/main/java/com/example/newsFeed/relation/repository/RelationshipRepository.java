@@ -18,6 +18,12 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
         return findAllByFollowerOrFollowing(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    //모든 친구 관계 조회
+    Optional<List<Relationship>> findAllByFollowerOrFollowingAndPendingIsFalse(User user, User user2);
+    default List<Relationship> findAllByFollowerOrFollowingAndPendingIsFalseOrElseThrow(User user){
+        return findAllByFollowerOrFollowing(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
     //요청을 보낸 유저와 받은 유저를 지정하여 조회
     Optional<List<Relationship>> findALLByFollowerAndFollowing(User user, User user2);
     //두 유저가 같이 연관된 모든 요청 조회

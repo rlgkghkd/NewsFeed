@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -110,5 +112,17 @@ public class RelationshipService {
         if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "조회된 결과가 없습니다.");}
 
         return foundRel.stream().map(RelationshipResponseDto::new).toList();
+    }
+
+    //해당 유저의 모든 친구를 User 리스트 형태로 반환
+    //친구는 요청을 승인한 유저만 포함.
+    public List<User> findAllFriends(User user){
+        List<Relationship> relationshipList = relationshipRepository.findAllByFollowerOrFollowingAndPendingIsFalseOrElseThrow(user);
+        List<User> friends = new ArrayList<>();
+        for (Relationship r : relationshipList){
+            if(!r.getFollower().equals(user)){friends.add(r.getFollower());}
+            else if(!r.getFollowing().equals(user)){friends.add(r.getFollowing());}
+        }
+        return friends;
     }
 }

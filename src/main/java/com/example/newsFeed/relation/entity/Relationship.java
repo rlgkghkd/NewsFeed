@@ -16,11 +16,11 @@ public class Relationship {
     private RelationshipId id;
 
     @MapsId("followerId")
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "follower_id")
     private User follower;
     @MapsId("followingId")
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "following_id")
     private User following;
 
