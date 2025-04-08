@@ -23,12 +23,14 @@ public class User extends Base {
     private String introduction;
     private boolean enable;
 
-    public static User toEntity(UserSignUpRequestDto dto, String password, LocalDateTime date){
-        return new User(dto.getEmail(), dto.getName(), password, date, dto.getIntroduction(), true);
+    public static User toEntity(UserSignUpRequestDto dto, LocalDateTime date){
+        //암호화
+        String encodedPassword = PasswordEncoder.encode(dto.getPassword());
+        return new User(dto.getEmail(), dto.getName(), encodedPassword, date, dto.getIntroduction(), true);
     }
 
-    public boolean isPasswordEqual(String password, PasswordEncoder passwordEncoder){
-        return passwordEncoder.matches(this.password, password);
+    public boolean isPasswordEqual(String password){
+        return PasswordEncoder.matches(this.password, password);
     }
 
     public void updateName(String name){
@@ -38,12 +40,11 @@ public class User extends Base {
         this.name = name;
     }
 
-    //passwordEncorder 추가 필요
-    public void updatePassword(String updatePassword, PasswordEncoder passwordEncoder){
-        if(passwordEncoder.matches(this.password, updatePassword)){
+    public void updatePassword(String updatePassword){
+        if(PasswordEncoder.matches(this.password, updatePassword)){
             throw new IllegalArgumentException("현재 비밀번호와는 다른 비밀번호로 변경해주세요");
         }
-        this.password = passwordEncoder.encode(updatePassword);
+        this.password = PasswordEncoder.encode(updatePassword);
     }
 
     public void updateIntroduction(String introduction){
