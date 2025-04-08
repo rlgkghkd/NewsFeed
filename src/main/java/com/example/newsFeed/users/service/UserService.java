@@ -1,6 +1,12 @@
 package com.example.newsFeed.users.service;
 
-import com.example.newsFeed.users.Repository.UserRepository;
+<<<<<<< HEAD
+import com.example.newsFeed.users.repository.UserRepository;
+=======
+import com.example.newsFeed.users.dto.UserResponseDto;
+import com.example.newsFeed.users.dto.UserUpdateRequestDto;
+import com.example.newsFeed.users.entity.User;
+>>>>>>> a0daa437bbd665795405705d1d964f7df1b7fe88
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,4 +15,31 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
 
+<<<<<<< HEAD
+=======
+    public UserResponseDto findUserById(Long userId){
+        User user = userRepository.findByIdOrElseThrow(userId);
+        return UserResponseDto.toDto(user);
+    }
+
+    public UserResponseDto updateUserInfo(Long userId, UserUpdateRequestDto updateDto){
+        User user = userRepository.findByIdOrElseThrow(userId);
+
+        //이름 변경
+        if(updateDto.getName()!=null){
+            user.updateName(updateDto.getName());
+        }
+        //소개 변경
+        if(updateDto.getIntroduction()!=null){
+            user.updateIntroduction(updateDto.getIntroduction());
+        }
+        //비밀번호 변경
+        if(updateDto.getCurrentPassword()!=null && updateDto.getUpdatePassword()!=null){
+            user.updatePassword(updateDto.getCurrentPassword(), updateDto.getUpdatePassword());
+        }
+        //저장
+        userRepository.save(user);
+        return UserResponseDto.toDto(user);
+    }
+>>>>>>> a0daa437bbd665795405705d1d964f7df1b7fe88
 }
