@@ -1,4 +1,4 @@
-package com.example.newsFeed.Relation.entity;
+package com.example.newsFeed.relation.entity;
 
 import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.entity.Base;
