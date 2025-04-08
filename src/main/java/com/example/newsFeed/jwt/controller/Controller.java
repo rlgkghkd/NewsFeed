@@ -1,6 +1,6 @@
 package com.example.newsFeed.jwt.controller;
 
-import com.example.newsFeed.jwt.TokenUtils;
+import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.jwt.dto.LoginResponseDto;
 import com.example.newsFeed.users.service.UserService;
@@ -27,7 +27,7 @@ public class Controller {
 
         Long id = userService.login(requestDto);
 
-        String accessToken = tokenUtils.createJwt(id);
+        String accessToken = tokenUtils.createAccessToken(id);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)

@@ -20,11 +20,11 @@ public enum Errors {
     INVALID_PASSWORD(400, "Bad Request", "Invalid Password"),
     UNAUTHORIZED_ACCESS(400, "Bad Request", "Unauthorized Access"),
 
-    // Schedule
-    SCHEDULE_NOT_FOUND(404, "Not Found", "Schedule Not Found"),
+    // Board
+    SCHEDULE_NOT_FOUND(404, "Not Found", "Board Not Found"),
 
-    // Comment
-    COMMENT_NOT_FOUND(404, "Not Found", "Comment Not Found");
+    // Follower
+    COMMENT_NOT_FOUND(404, "Not Found", "Follower Not Found");
 
     private final int status;
     private final String error;
