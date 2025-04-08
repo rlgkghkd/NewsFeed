@@ -27,24 +27,23 @@ public class BoardController {
 
     //전체조회
     @GetMapping
-    public List<BoardResponseDto> getBoardAll(){
+    public List<BoardResponseDto> getBoardAll() {
         return boardService.getBoardAll();
     }
 
     //단건조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable long boardId){
+    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable long boardId) {
         BoardResponseDto dto = boardService.getBoardById(boardId);
         return ResponseEntity.ok(dto);
     }
 
     //뉴스피드 조회
     @GetMapping("/page/{pageNumber}")
-    public Page<BoardListResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size)
-    {
-        pageNumber=5;
+    public Page<BoardListResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size) {
+        pageNumber = 5;
 
-        return boardService.getBoardPage(pageNumber,size);
+        return boardService.getBoardPage(pageNumber, size);
     }
 
     //추가
@@ -66,7 +65,7 @@ public class BoardController {
         return ResponseEntity.ok(dto);
     }
 
-    
+
     //삭제
     //JWT userId값 수신방식에 따라서 파라미터로 할지 body로 할지, Filter 활용..?
     @DeleteMapping("/{boardId}")
@@ -76,8 +75,6 @@ public class BoardController {
         boardService.deleteBoard(boardId, userId);
         return ResponseEntity.ok("삭제완료");
     }
-    
-
 
 
 }

@@ -32,7 +32,7 @@ public class Board extends Base {
         this.contents = dto.getContents();
     }
 
-    public Board(BoardRequestDto dto, User user){
+    public Board(BoardRequestDto dto, User user) {
         this.title = dto.getTitle();
         this.contents = dto.getContents();
         this.user = user;

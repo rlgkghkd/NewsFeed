@@ -12,7 +12,7 @@ public class UserResponseDto {
     //작성한 게시글 수
     //친구 수
 
-    public static UserResponseDto toDto(User user){
+    public static UserResponseDto toDto(User user) {
         return new UserResponseDto(user.getName(), user.getIntroduction());
     }
 }

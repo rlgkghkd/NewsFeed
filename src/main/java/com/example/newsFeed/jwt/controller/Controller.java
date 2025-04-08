@@ -21,7 +21,6 @@ public class Controller {
     private final TokenUtils tokenUtils;
     private final UserService userService;
 
-
     @PostMapping
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto) {
 

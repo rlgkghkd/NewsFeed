@@ -9,5 +9,4 @@ public class LoginResponseDto {
 
    private final String loginMessage;
 
-
 }

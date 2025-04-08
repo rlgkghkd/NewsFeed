@@ -9,7 +9,7 @@ public enum Errors {
 
     // Common
     INVALID_INPUT_VALUE(400, "Bad Request", "Invalid Input Value"),
-    METHOD_NOT_ALLOWED(405, "Method Not Allowed","Method Not Allowed"),
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed", "Method Not Allowed"),
     ENTITY_NOT_FOUND(400, "Bad Request", "Entity Not Found"),
     INTERNAL_SERVER_ERROR(500, "Server Error", "Internal Server Error"),
     INVALID_TYPE_VALUE(400, "Bad Request", "Invalid Type Value"),

@@ -10,5 +10,4 @@ public class TokenServiceImpl {
 
     private final UserRepository userRepository;
 
-
 }

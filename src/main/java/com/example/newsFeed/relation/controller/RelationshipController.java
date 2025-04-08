@@ -19,7 +19,7 @@ public class RelationshipController {
 
     //친구요청 생성
     @PostMapping
-    public RelationshipResponseDto requestRelationship(@RequestBody CreateRelationshipRequestDto dto, HttpServletRequest request){
+    public RelationshipResponseDto requestRelationship(@RequestBody CreateRelationshipRequestDto dto, HttpServletRequest request) {
         return relationshipService.sendRequest(dto.getFollowingId(), request);
     }
 
@@ -28,21 +28,21 @@ public class RelationshipController {
     //pending은 자신이 받은 요청중 승인 대기중인 요청 조회
     //sent는 자신이 보낸 모든 요청 조회
     @GetMapping
-    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request, @RequestParam(value = "type", required = false, defaultValue = "") String type){
+    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request, @RequestParam(value = "type", required = false, defaultValue = "") String type) {
         return relationshipService.findRelationship(request, type);
     }
 
     //친구 요청 승인/거부
     //요청을 보낸 user의 id 필요
     @PatchMapping
-    public void responseRelationshipRequest(@RequestBody ResponseRelationshipRequestDto dto, HttpServletRequest request){
+    public void responseRelationshipRequest(@RequestBody ResponseRelationshipRequestDto dto, HttpServletRequest request) {
         relationshipService.responseRelationship(dto.getFollowerId(), dto.isResponse(), request);
     }
 
     //친구 요청, 승인된 요청 삭제
     //요청을 자신과 요청관계에 있는 유저 id 필요
     @DeleteMapping
-    public void deleteRelationshipRequest(@RequestBody DeleteRelationshipRequestDto dto, HttpServletRequest request){
+    public void deleteRelationshipRequest(@RequestBody DeleteRelationshipRequestDto dto, HttpServletRequest request) {
         relationshipService.deleteRelationship(dto.getOthersId(), request);
     }
 }
