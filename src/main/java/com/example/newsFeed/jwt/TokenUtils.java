@@ -17,7 +17,7 @@ public class TokenUtils {
     private static final SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
 
     // 액세스 토큰 생성
-    public String createJwt(int userId) {
+    public String createJwt(Long userId) {
         Date now = new Date();
         return Jwts.builder()
                 .header()
