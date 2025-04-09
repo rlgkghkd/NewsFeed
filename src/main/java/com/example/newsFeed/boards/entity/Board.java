@@ -1,5 +1,6 @@
 package com.example.newsFeed.boards.entity;
 
+import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.entity.Base;
 import com.example.newsFeed.users.entity.User;
 import jakarta.persistence.Entity;
@@ -25,4 +26,15 @@ public class Board extends Base {
 
     private String title;
     private String contents;
+
+    public void update(BoardRequestDto dto) {
+        this.title = dto.getTitle();
+        this.contents = dto.getContents();
+    }
+
+    public Board(BoardRequestDto dto, User user) {
+        this.title = dto.getTitle();
+        this.contents = dto.getContents();
+        this.user = user;
+    }
 }
