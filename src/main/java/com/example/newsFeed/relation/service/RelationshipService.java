@@ -1,5 +1,6 @@
 package com.example.newsFeed.relation.service;
 
+import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.example.newsFeed.relation.dto.RelationshipResponseDto;
 import com.example.newsFeed.relation.entity.Relationship;
 import com.example.newsFeed.relation.entity.RelationshipId;
@@ -21,14 +22,15 @@ import java.util.List;
 public class RelationshipService {
     private final RelationshipRepository relationshipRepository;
     private final UserRepository userRepository;
+    private final TokenUtils tokenUtils;
 
     //친구요청 생성
     public RelationshipResponseDto sendRequest(Long targetId, HttpServletRequest request) {
-        request.getHeader("Auto");
-        String name = "userName got from requestHeader";
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //임시유저(본인)
-        User follower = userRepository.findById((long)1).orElseThrow();
+        User follower = userRepository.findById(requestId).orElseThrow();
         //요청 보내는 대상
         User following = userRepository.findById(targetId).orElseThrow();
 
@@ -49,13 +51,13 @@ public class RelationshipService {
     //요청 상태는 pending으로 판단. true일 시 응답이 필요한 요청, false일 시 이미 승인된 요청.
     @Transactional
     public void responseRelationship(Long followerId, boolean response, HttpServletRequest request) {
-        request.getHeader("Auto");
-        String name = "userName got from requestHeader";
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //요청을 보낸 유저
         User follower = userRepository.findById(followerId).orElseThrow();
         //요청을 받는 대상(임시 본인)
-        User following = userRepository.findById((long)2).orElseThrow();
+        User following = userRepository.findById(requestId).orElseThrow();
 
 
         List<Relationship> relationship = relationshipRepository.findALLByFollowerAndFollowing(follower, following).orElseThrow();
@@ -74,9 +76,11 @@ public class RelationshipService {
     //승인, 미승인 된 요청 모두 삭제 가능
     @Transactional
     public void deleteRelationship(Long otherId, HttpServletRequest request) {
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //임시 본인
-        User me = userRepository.findById((long)1).orElseThrow();
+        User me = userRepository.findById(requestId).orElseThrow();
         //요청의 대상
         User other =  userRepository.findById(otherId).orElseThrow();
 
@@ -90,12 +94,12 @@ public class RelationshipService {
     //요청 조회
     //본인과 관련된 요청만 조회 가능.
     //전달받은 type 파라미터에 따라 다른 동작
-    public List<RelationshipResponseDto> findRelationship(HttpServletRequest request, String type) {
-        request.getHeader("Auto");
-        String name = "userName got from requestHeader";
+    public List<RelationshipResponseDto> findRelationship(String type, HttpServletRequest request) {
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //임시 유저(본인)
-        User userFoundById = userRepository.findById((long) 1).orElseThrow();
+        User userFoundById = userRepository.findById(requestId).orElseThrow();
 
         //pending은 본인이 받은 요청중 미승인된 모든 요청 조회
         //sent는 본인이 보낸 모든 요청 조회
@@ -117,7 +121,6 @@ public class RelationshipService {
     //해당 유저의 모든 친구를 User 리스트 형태로 반환
     //친구는 요청을 승인한 유저만 포함.
     public List<User> findAllFriends(User user){
-
         List<Relationship> relationshipList = relationshipRepository.findAllAcceptedFriends(user);
         List<User> friends = new ArrayList<>();
         for (Relationship r : relationshipList){
