@@ -7,11 +7,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class UserResponseDto {
+    private Long id;
     private String name;        //이름
     private String introduction;//소개
-    //private Long boardsCount;        //작성한 게시글 수
-    //private Long friendsCount;       //친구 수
-    public static UserResponseDto toDto(User user) {
-        return new UserResponseDto(user.getName(), user.getIntroduction());
+    private Long boards;        //작성한 게시글 수
+    private Long friends;       //친구 수
+    public static UserResponseDto toDto(User user, Long boards, Long friends) {
+        return new UserResponseDto(user.getId(), user.getName(), user.getIntroduction(), boards, friends);
     }
 }

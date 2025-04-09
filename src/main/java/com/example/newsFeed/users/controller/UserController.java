@@ -24,6 +24,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입에 성공했습니다.");
     }
 
+    //유저 목록 페이징 조회
+    @GetMapping("/page/{pageNumber}")
+    public Page<UserListResponseDto> getUserPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size) {
+        return userService.getUserPage(pageNumber, size);
+    }
+
+
     //유저 아이디 기반 단일 유저 조회
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> findUserById(@PathVariable Long id) {
@@ -31,8 +38,6 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
-    //Token에 저장되어 있는 유저 아이디를 가져와야 하지만
-    //일단 동작을 위해서 API 엔드포인트로 Id를 받아옴
     @PutMapping()
     public ResponseEntity<UserResponseDto> updateUserInfo(
             @RequestBody UserUpdateRequestDto updateDto,

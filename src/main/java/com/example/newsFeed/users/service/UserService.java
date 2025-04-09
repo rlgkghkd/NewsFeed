@@ -1,20 +1,25 @@
 package com.example.newsFeed.users.service;
 
+import com.example.newsFeed.boards.repository.BoardRepository;
 import com.example.newsFeed.global.exception.CustomException;
 import com.example.newsFeed.global.exception.Errors;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
+import com.example.newsFeed.relation.repository.RelationshipRepository;
 import com.example.newsFeed.users.dto.*;
 import com.example.newsFeed.users.repository.UserRepository;
 import com.example.newsFeed.users.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
+    private final RelationshipRepository relationshipRepository;
 
     public void signUp(UserSignUpRequestDto signUpDto) {
         //이미 존재하는 이메일인지 확인
@@ -26,9 +31,21 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public Page<UserListResponseDto> getUserPage(int page, int size) {
+        if (page < 1) {
+            page = 1;
+        }
+        page = page - 1;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(UserListResponseDto::toDto);
+    }
+
+
+    //id로 User 찾아서 UserResponseDto로 반환
     public UserResponseDto findUserById(Long userId) {
         User user = userRepository.findByIdOrElseThrow(userId);
-        return UserResponseDto.toDto(user);
+        return UserResponseDto.toDto(user, boardRepository.countByUser_Id(userId), relationshipRepository.countAcceptedFriends(user));
     }
 
     //유저 아이디로 유저 Entity 찾아서 반환
@@ -36,6 +53,7 @@ public class UserService {
         return userRepository.findByIdOrElseThrow(userId);
     }
 
+    //유저 정보 업데이트
     public UserResponseDto updateUserInfo(Long userId, UserUpdateRequestDto updateDto) {
         User user = userRepository.findByIdOrElseThrow(userId);
         //이름 변경
@@ -44,7 +62,7 @@ public class UserService {
         user.updateIntroduction(updateDto.getIntroduction());
         //저장
         userRepository.save(user);
-        return UserResponseDto.toDto(user);
+        return UserResponseDto.toDto(user, boardRepository.countByUser_Id(userId), relationshipRepository.countAcceptedFriends(user));
     }
 
     public void updateUserPassword(Long id, UserPasswordRequestDto passwordDto) {

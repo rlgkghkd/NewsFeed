@@ -3,6 +3,8 @@ package com.example.newsFeed.relation.repository;
 import com.example.newsFeed.relation.entity.Relationship;
 import com.example.newsFeed.users.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -43,4 +45,9 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
     default List<Relationship> findAllByFollowerAndPendingIsTrueOrElseThrow(User user){
         return findAllByFollowerAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
+
+    //친구 수 카운트
+    @Query("SELECT COUNT(r) FROM Relationship r WHERE r.pending = false AND (r.follower = :user OR r.following = :user)")
+    Long countAcceptedFriends(@Param("user") User user);
+
 }
