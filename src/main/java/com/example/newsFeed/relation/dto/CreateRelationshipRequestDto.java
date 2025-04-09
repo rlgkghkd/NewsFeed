@@ -7,5 +7,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CreateRelationshipRequestDto {
-    private Long followingId;
+    private String followingEmail;
 }

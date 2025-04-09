@@ -77,6 +77,7 @@ public class UserService {
 
     public void resignUser(Long id, UserDeleteRequestDto deleteDto) {
         User user = userRepository.findByIdOrElseThrow(id);
+
         if (!user.checkPasswordEqual(deleteDto.getPassword())) {
             throw new CustomException(Errors.INVALID_PASSWORD);
         }
@@ -87,7 +88,8 @@ public class UserService {
     public Long login(LoginRequestDto requestDto) {
 
         User user = userRepository.findUserByEmailOrElseThrow(requestDto.getEmail());
-
+        System.out.println(user.getPassword() + "asdasd");
+        System.out.println(requestDto.getPassword() + "qweqwe");
         if (!user.checkPasswordEqual(requestDto.getPassword())) {
             throw new CustomException(Errors.INVALID_PASSWORD);
         }
