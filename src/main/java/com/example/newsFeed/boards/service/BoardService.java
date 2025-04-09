@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,7 +51,7 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-    public List<BoardResponseDto> getBoardPage(int page, int size)
+    public List<BoardResponseDto> getBoardPage(int page, int size, String sorting)
     {
         if(page < 1)
         {
@@ -65,11 +66,19 @@ public class BoardService {
                 .map(BoardResponseDto::new)
                 .toList();
 
+
+        result = switch (sorting){
+            case "likes"->result.stream().sorted(Comparator.comparing(BoardResponseDto::getLikesCount).reversed()).toList();
+            case "dates"->result.stream().sorted(Comparator.comparing(BoardResponseDto::getModifiedAt).reversed()).toList();
+            default -> result;
+        };
+
         return result;
     }
 
     public List<BoardResponseDto> getFollowFeedBoardAll(long userId){
-        List<User> userList =  relationshipService.findAllFriends();
+        User user = userService.getUserById(userId);
+        List<User> userList =  relationshipService.findAllFriends(user);
         List<Board> result = boardRepository.findByUserInOrderByCreatedAtDesc(userList);
 
         if(result.size()==0)
@@ -88,6 +97,7 @@ public class BoardService {
     {
         User user = userService.getUserById(userId);
         Board board = new Board(dto, user);
+        board.setLikesCount((long)0);
         boardRepository.save(board);
         return new BoardResponseDto(board);
     }

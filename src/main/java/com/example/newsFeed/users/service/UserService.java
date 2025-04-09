@@ -94,8 +94,6 @@ public class UserService {
     public Long login(LoginRequestDto requestDto) {
 
         User user = userRepository.findUserByEmailOrElseThrow(requestDto.getEmail());
-        System.out.println(user.getPassword() + "asdasd");
-        System.out.println(requestDto.getPassword() + "qweqwe");
         if (!user.isEnable()){
             throw new CustomException(Errors.USER_NOT_FOUND, "This user has already been deleted");
         }

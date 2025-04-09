@@ -41,10 +41,11 @@ public class BoardController {
     }
 
     //뉴스피드 조회
+    //sorting 파라미터를 추가해 정렬할 기준을 정함
     @GetMapping("/page/{pageNumber}")
-    public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size)
-    {
-        return boardService.getBoardPage(pageNumber,size);
+    public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size,
+                                               @RequestParam(required = false, defaultValue = "") String sorting) {
+        return boardService.getBoardPage(pageNumber,size, sorting);
     }
 
     //findAllFriends
