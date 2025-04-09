@@ -69,7 +69,8 @@ public class BoardService {
     }
 
     public List<BoardResponseDto> getFollowFeedBoardAll(long userId){
-        List<User> userList =  relationshipService.findAllFriends();
+        User user = userService.getUserById(userId);
+        List<User> userList =  relationshipService.findAllFriends(user);
         List<Board> result = boardRepository.findByUserInOrderByCreatedAtDesc(userList);
 
         if(result.size()==0)
