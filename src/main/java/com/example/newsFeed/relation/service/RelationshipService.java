@@ -9,6 +9,8 @@ import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.users.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +31,7 @@ public class RelationshipService {
         String token = tokenUtils.getAccessToken(request);
         Long requestId = tokenUtils.getUserIdFromToken(token);
 
-        //임시유저(본인)
+        //본인
         User follower = userRepository.findById(requestId).orElseThrow();
         //요청 보내는 대상
         User following = userRepository.findById(targetId).orElseThrow();
@@ -79,7 +81,7 @@ public class RelationshipService {
         String token = tokenUtils.getAccessToken(request);
         Long requestId = tokenUtils.getUserIdFromToken(token);
 
-        //임시 본인
+        //본인
         User me = userRepository.findById(requestId).orElseThrow();
         //요청의 대상
         User other =  userRepository.findById(otherId).orElseThrow();
@@ -94,21 +96,24 @@ public class RelationshipService {
     //요청 조회
     //본인과 관련된 요청만 조회 가능.
     //전달받은 type 파라미터에 따라 다른 동작
-    public List<RelationshipResponseDto> findRelationship(String type, HttpServletRequest request) {
+    public List<RelationshipResponseDto> findRelationship(String type, HttpServletRequest request, int index) {
         String token = tokenUtils.getAccessToken(request);
         Long requestId = tokenUtils.getUserIdFromToken(token);
 
-        //임시 유저(본인)
+        //본인
         User userFoundById = userRepository.findById(requestId).orElseThrow();
+
+        PageRequest pageRequest = PageRequest.of(index-1, 10);
 
         //pending은 본인이 받은 요청중 미승인된 모든 요청 조회
         //sent는 본인이 보낸 모든 요청 조회
         //type이 없을 시 본인과 연관된 모든 요청 조회
         //기타 입력의 경우 예외처리
-        List<Relationship> foundRel = switch (type) {
-            case "pending" -> relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById);
-            case "sent" -> relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById);
-            case "" -> relationshipRepository.findAllRelationshipByUserOrElseThrow(userFoundById);
+        Page<Relationship> foundRel = switch (type) {
+            case "pending" -> relationshipRepository.findAllByFollowingAndPendingIsTrueOrElseThrow(userFoundById, pageRequest);
+            case "sent" -> relationshipRepository.findAllByFollowerAndPendingIsTrueOrElseThrow(userFoundById, pageRequest);
+            case "friend" -> relationshipRepository.findAllAcceptedFriends(userFoundById, pageRequest);
+            case "" -> relationshipRepository.findAllRelationshipByUserOrElseThrow(userFoundById, pageRequest);
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바른 요청 파라미터가 아닙니다.");
         };
 
@@ -121,7 +126,7 @@ public class RelationshipService {
     //해당 유저의 모든 친구를 User 리스트 형태로 반환
     //친구는 요청을 승인한 유저만 포함.
     public List<User> findAllFriends(User user){
-        List<Relationship> relationshipList = relationshipRepository.findAllAcceptedFriends(user);
+        List<Relationship> relationshipList = relationshipRepository.findAllByFollowerAndPendingIsFalseOrFollowingAndPendingIsFalse(user, user).orElseThrow();
         List<User> friends = new ArrayList<>();
         for (Relationship r : relationshipList){
             if(!r.getFollower().equals(user)){friends.add(r.getFollower());}

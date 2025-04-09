@@ -2,6 +2,8 @@ package com.example.newsFeed.relation.repository;
 
 import com.example.newsFeed.relation.entity.Relationship;
 import com.example.newsFeed.users.entity.User;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,14 +16,20 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
 
     Optional<List<Relationship>> findAllByFollowerOrFollowing(User user, User user2);
     //유저와 연관된 모든 요청 조회
-    default List<Relationship> findAllRelationshipByUserOrElseThrow(User user){
-        return findAllByFollowerOrFollowing(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    default PageImpl<Relationship> findAllRelationshipByUserOrElseThrow(User user, PageRequest pageRequest){
+        List<Relationship> searched = findAllByFollowerOrFollowing(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start+pageRequest.getPageSize()),  searched.size());
+        return new PageImpl<>(searched.subList(start, end), pageRequest, searched.size());
     }
 
     //모든 친구 관계 조회
     Optional<List<Relationship>> findAllByFollowerAndPendingIsFalseOrFollowingAndPendingIsFalse(User user, User user2);
-    default List<Relationship> findAllAcceptedFriends(User user){
-        return findAllByFollowerAndPendingIsFalseOrFollowingAndPendingIsFalse(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    default PageImpl<Relationship> findAllAcceptedFriends(User user, PageRequest pageRequest){
+        List<Relationship> searched = findAllByFollowerAndPendingIsFalseOrFollowingAndPendingIsFalse(user, user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start+pageRequest.getPageSize()),  searched.size());
+        return new PageImpl<>(searched.subList(start, end), pageRequest, searched.size());
     }
 
     //요청을 보낸 유저와 받은 유저를 지정하여 조회
@@ -34,13 +42,18 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
 
 
     Optional<List<Relationship>> findAllByFollowingAndPendingIsTrue(User following);
-    //
-    default List<Relationship> findAllByFollowingAndPendingIsTrueOrElseThrow(User user){
-        return findAllByFollowingAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    default PageImpl<Relationship> findAllByFollowingAndPendingIsTrueOrElseThrow(User user, PageRequest pageRequest){
+        List<Relationship> searched =findAllByFollowingAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start+pageRequest.getPageSize()),  searched.size());
+        return new PageImpl<>(searched.subList(start, end), pageRequest, searched.size());
     }
 
     Optional<List<Relationship>> findAllByFollowerAndPendingIsTrue(User user);
-    default List<Relationship> findAllByFollowerAndPendingIsTrueOrElseThrow(User user){
-        return findAllByFollowerAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    default PageImpl<Relationship> findAllByFollowerAndPendingIsTrueOrElseThrow(User user, PageRequest pageRequest){
+        List<Relationship> searched = findAllByFollowerAndPendingIsTrue(user).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start+pageRequest.getPageSize()),  searched.size());
+        return new PageImpl<>(searched.subList(start, end), pageRequest, searched.size());
     }
 }

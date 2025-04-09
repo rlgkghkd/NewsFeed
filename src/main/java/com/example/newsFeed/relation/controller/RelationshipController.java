@@ -28,8 +28,10 @@ public class RelationshipController {
     //pending은 자신이 받은 요청중 승인 대기중인 요청 조회
     //sent는 자신이 보낸 모든 요청 조회
     @GetMapping
-    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request, @RequestParam(value = "type", required = false, defaultValue = "") String type) {
-        return relationshipService.findRelationship(type, request);
+    public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request,
+                                                             @RequestParam(value = "type", required = false, defaultValue = "") String type,
+                                                             @RequestParam(value = "index", required = false, defaultValue = "1") int index) {
+        return relationshipService.findRelationship(type, request, index);
     }
 
     //친구 요청 승인/거부
