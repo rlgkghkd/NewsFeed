@@ -37,7 +37,7 @@ public class UserService {
         }
         page = page - 1;
         Pageable pageable = PageRequest.of(page, size);
-        Page<User> users = userRepository.findAll(pageable);
+        Page<User> users = userRepository.findByEnableTrue(pageable);
         return users.map(UserListResponseDto::toDto);
     }
 
@@ -45,6 +45,9 @@ public class UserService {
     //id로 User 찾아서 UserResponseDto로 반환
     public UserResponseDto findUserById(Long userId) {
         User user = userRepository.findByIdOrElseThrow(userId);
+        if (!user.isEnable()){
+            throw new CustomException(Errors.USER_NOT_FOUND, "This user has already been deleted");
+        }
         return UserResponseDto.toDto(user, boardRepository.countByUser_Id(userId), relationshipRepository.countAcceptedFriends(user));
     }
 
@@ -78,6 +81,9 @@ public class UserService {
     public void resignUser(Long id, UserDeleteRequestDto deleteDto) {
         User user = userRepository.findByIdOrElseThrow(id);
 
+        if (!user.isEnable()){
+            throw new CustomException(Errors.USER_NOT_FOUND, "This user has already been deleted");
+        }
         if (!user.checkPasswordEqual(deleteDto.getPassword())) {
             throw new CustomException(Errors.INVALID_PASSWORD);
         }
@@ -90,6 +96,10 @@ public class UserService {
         User user = userRepository.findUserByEmailOrElseThrow(requestDto.getEmail());
         System.out.println(user.getPassword() + "asdasd");
         System.out.println(requestDto.getPassword() + "qweqwe");
+        if (!user.isEnable()){
+            throw new CustomException(Errors.USER_NOT_FOUND, "This user has already been deleted");
+        }
+
         if (!user.checkPasswordEqual(requestDto.getPassword())) {
             throw new CustomException(Errors.INVALID_PASSWORD);
         }
