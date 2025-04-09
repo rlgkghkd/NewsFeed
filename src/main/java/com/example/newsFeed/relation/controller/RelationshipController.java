@@ -29,7 +29,7 @@ public class RelationshipController {
     //sent는 자신이 보낸 모든 요청 조회
     @GetMapping
     public List<RelationshipResponseDto> findAllRelationship(HttpServletRequest request, @RequestParam(value = "type", required = false, defaultValue = "") String type) {
-        return relationshipService.findRelationship(request, type);
+        return relationshipService.findRelationship(type, request);
     }
 
     //친구 요청 승인/거부
