@@ -42,11 +42,16 @@ public class BoardController {
 
     //뉴스피드 조회
     @GetMapping("/page/{pageNumber}")
-    public Page<BoardListResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size)
+    public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size)
     {
-        pageNumber=5;
-
         return boardService.getBoardPage(pageNumber,size);
+    }
+
+    //findAllFriends
+    @GetMapping("/followFeed")
+    public List<BoardResponseDto> getFollowFeedBoardAll(@CookieValue(name = "accessToken", required = false) String token){
+        Long userId = tokenUtils.getUserIdFromToken(token);
+        return boardService.getFollowFeedBoardAll(userId);
     }
 
     //추가

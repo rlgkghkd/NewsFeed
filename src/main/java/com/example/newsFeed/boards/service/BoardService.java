@@ -5,12 +5,16 @@ import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.boards.repository.BoardRepository;
 import com.example.newsFeed.boards.dto.BoardResponseDto;
 import com.example.newsFeed.boards.entity.Board;
+import com.example.newsFeed.global.exception.CustomException;
+import com.example.newsFeed.global.exception.Errors;
+import com.example.newsFeed.relation.service.RelationshipService;
 import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,9 +25,19 @@ import java.util.stream.Collectors;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final UserService userService;
+    private final RelationshipService relationshipService;
+
+    Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 
     public List<BoardResponseDto> getBoardAll(){
-        List<Board> result = boardRepository.findAll();
+        //기본 정렬은 생성일자 기준으로 내림차순 정렬
+
+        List<Board> result = boardRepository.findAll(sort);
+
+        if(result.size()==0)
+        {
+            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+        }
 
         List<BoardResponseDto> dto = result.stream()
                 .map(BoardResponseDto::new)
@@ -32,48 +46,65 @@ public class BoardService {
     }
 
     public BoardResponseDto getBoardById(long boardId){
-        //예외처리 하고 가져와야함
-        Board board = boardRepository.getById(boardId);
+        Board board = checkBoardId(boardId);
         return new BoardResponseDto(board);
     }
 
-    public Page<BoardListResponseDto> getBoardPage(int page, int size)
+    public List<BoardResponseDto> getBoardPage(int page, int size)
     {
         if(page < 1)
         {
             page = 1;
         }
         page = page - 1;
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page,size,sort);
 
         Page<Board> boards = boardRepository.findAll(pageable);
 
-        return boards.map(board -> new BoardListResponseDto(board));
+        List<BoardResponseDto> result = boards.getContent().stream()
+                .map(BoardResponseDto::new)
+                .toList();
+
+        return result;
     }
-    
-    public BoardResponseDto createBoard(BoardRequestDto dto, long userId) //Id필요
+
+    public List<BoardResponseDto> getFollowFeedBoardAll(long userId){
+        List<User> userList =  relationshipService.findAllFriends();
+        List<Board> result = boardRepository.findByUserInOrderByCreatedAtDesc(userList);
+
+        if(result.size()==0)
+        {
+            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+        }
+
+        List<BoardResponseDto> dto = result.stream()
+                .map(BoardResponseDto::new)
+                .collect(Collectors.toList());
+        return dto;
+
+    }
+
+    public BoardResponseDto createBoard(BoardRequestDto dto, long userId)
     {
-        //검증 예외처리 추가 -> 예외처리를 Entity에서 할지, Service단에서 예외를 할지??
         User user = userService.getUserById(userId);
         Board board = new Board(dto, user);
         boardRepository.save(board);
         return new BoardResponseDto(board);
     }
 
-    public BoardResponseDto updateBoard(BoardRequestDto dto,long boardId, long userId) //Id필요
+    public BoardResponseDto updateBoard(BoardRequestDto dto,long boardId, long userId)
     {
-        //BoardId 존재여부 예외처리
-        //BoardId == UserId 검증 예외처리
-        Board board = boardRepository.getById(boardId); //예외처리하는 부분에서 board 리턴해주면 편함
+        Board board = checkBoardId(boardId);
+        checkBoardIdEqualsLoginId(board,userId);
         board.update(dto);
+        boardRepository.save(board);
         return new BoardResponseDto(board);
     }
     
     public void deleteBoard(long boardId, long userId)
     {
-        //BoardId 존재여부 예외처리
-        //BoardId == UserId 검증 예외처리
-        Board board = boardRepository.getById(boardId); //예외처리하는 부분에서 board 리턴해주면 편함
+        Board board = checkBoardId(boardId);
+        checkBoardIdEqualsLoginId(board,userId);
         boardRepository.delete(board);
 
     }
@@ -81,6 +112,25 @@ public class BoardService {
     /******************************
      * 예외처리
      ******************************/
+
+    //boardId 존재하는지 검사 Board 반환
+    public Board checkBoardId(long boardId){
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(Errors.SCHEDULE_NOT_FOUND))
+                ;
+        return board;
+    }
+
+    //Board의 userId와 login userId 검사
+    public void checkBoardIdEqualsLoginId(Board board, long boardId){
+        if(!board.getUser().getId().equals(boardId))
+        {
+            //Enum 추가해야함 "Board 의 Id와 login Id가 맞지 않는 경우"
+            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+        }
+    }
+
+
 
 
 
