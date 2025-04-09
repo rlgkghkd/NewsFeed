@@ -1,4 +1,4 @@
-package com.example.newsFeed.users.Controller;
+package com.example.newsFeed.users.controller;
 
 import com.example.newsFeed.users.dto.*;
 import com.example.newsFeed.users.service.UserService;
@@ -17,7 +17,7 @@ public class UserController {
 
     //회원가입
     @PostMapping()
-    public ResponseEntity<String> signUp(@Valid @RequestBody UserSignUpRequestDto signUpDto){
+    public ResponseEntity<String> signUp(@Valid @RequestBody UserSignUpRequestDto signUpDto) {
         userService.signUp(signUpDto);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입에 성공했습니다.");
     }
@@ -36,7 +36,7 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody UserUpdateRequestDto updateDto,
             HttpServletRequest request
-    ){
+    ) {
         UserResponseDto responseDto = userService.updateUserInfo(id, updateDto);
         return ResponseEntity.ok(responseDto);
     }
@@ -54,7 +54,7 @@ public class UserController {
 
     //회원탈퇴
     @PatchMapping("/resign")
-    public ResponseEntity<String> resignUser(@RequestBody UserDeleteRequestDto deleteDto){
+    public ResponseEntity<String> resignUser(@RequestBody UserDeleteRequestDto deleteDto) {
         Long id = 5L;
         userService.resignUser(id, deleteDto);
         return ResponseEntity.ok().body("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");

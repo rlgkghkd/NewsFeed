@@ -4,7 +4,7 @@ import com.example.newsFeed.boards.service.BoardService;
 import com.example.newsFeed.boards.dto.BoardListResponseDto;
 import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.boards.dto.BoardResponseDto;
-import com.example.newsFeed.jwt.TokenUtils;
+import com.example.newsFeed.jwt.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

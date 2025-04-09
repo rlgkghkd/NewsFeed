@@ -1,13 +1,14 @@
-package com.example.newsFeed.jwt;
+package com.example.newsFeed.jwt.utils;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
 
 @Component
@@ -17,7 +18,7 @@ public class TokenUtils {
     private static final SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
 
     // 액세스 토큰 생성
-    public String createJwt(Long userId) {
+    public String createAccessToken(Long userId) {
         Date now = new Date();
         return Jwts.builder()
                 .header()
@@ -56,5 +57,16 @@ public class TokenUtils {
             // 만료, 서명 오류 등
             throw new RuntimeException("Invalid JWT token", e);
         }
+    }
+
+    public String getAccessToken(HttpServletRequest request) {
+
+        Cookie[] cookies = request.getCookies();
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> "accessToken".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }
