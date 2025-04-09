@@ -45,7 +45,7 @@ public class TokenUtils {
     }
 
     // JWT에서 userId 추출
-    public Long getUserIdFromToken(String token) {
+    public static Long getUserIdFromToken(String token) {
         try {
             Jws<Claims> jwt = Jwts.parser()
                     .verifyWith(key)
@@ -59,7 +59,7 @@ public class TokenUtils {
         }
     }
 
-    public String getAccessToken(HttpServletRequest request) {
+    public static String getAccessToken(HttpServletRequest request) {
 
         Cookie[] cookies = request.getCookies();
 

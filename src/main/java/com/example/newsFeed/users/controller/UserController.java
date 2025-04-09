@@ -1,10 +1,12 @@
 package com.example.newsFeed.users.controller;
 
+import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.example.newsFeed.users.dto.*;
 import com.example.newsFeed.users.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,32 +33,38 @@ public class UserController {
 
     //Token에 저장되어 있는 유저 아이디를 가져와야 하지만
     //일단 동작을 위해서 API 엔드포인트로 Id를 받아옴
-    @PutMapping("/{id}")
+    @PutMapping()
     public ResponseEntity<UserResponseDto> updateUserInfo(
-            @PathVariable Long id,
             @RequestBody UserUpdateRequestDto updateDto,
             HttpServletRequest request
     ) {
-        UserResponseDto responseDto = userService.updateUserInfo(id, updateDto);
+        String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
+        Long userId = TokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
+        UserResponseDto responseDto = userService.updateUserInfo(userId, updateDto);
         return ResponseEntity.ok(responseDto);
     }
 
     //비밀번호 수정
-    @PatchMapping("/{id}")
+    @PatchMapping()
     public ResponseEntity<String> updateUserPassword(
-            @PathVariable Long id,
             @RequestBody UserPasswordRequestDto passwordDto,
             HttpServletRequest request
     ) {
-        userService.updateUserPassword(id, passwordDto);
+        String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
+        Long userId = TokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
+        userService.updateUserPassword(userId, passwordDto);
         return ResponseEntity.ok().body("비밀번호가 변경되었습니다.");
     }
 
     //회원탈퇴
     @PatchMapping("/resign")
-    public ResponseEntity<String> resignUser(@RequestBody UserDeleteRequestDto deleteDto) {
-        Long id = 5L;
-        userService.resignUser(id, deleteDto);
+    public ResponseEntity<String> resignUser(
+            @RequestBody UserDeleteRequestDto deleteDto,
+            HttpServletRequest request
+    ) {
+        String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
+        Long userId = TokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
+        userService.resignUser(userId, deleteDto);
         return ResponseEntity.ok().body("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
     }
 }

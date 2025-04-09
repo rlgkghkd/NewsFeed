@@ -19,7 +19,7 @@ public class UserService {
     public void signUp(UserSignUpRequestDto signUpDto) {
         //이미 존재하는 이메일인지 확인
         if (userRepository.existsByEmail((signUpDto.getEmail()))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일입니다.");
+            throw new CustomException(Errors.EMAIL_DUPLICATION);
         }
         //새로운 이메일이라면 저장
         User user = User.toEntity(signUpDto);
@@ -51,7 +51,7 @@ public class UserService {
         User user = userRepository.findByIdOrElseThrow(id);
         //현재 비밀번호가 일치하는지 확인 후 비밀번호 변경
         if (!user.checkPasswordEqual(passwordDto.getCurrentPassword())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다.");
+            throw new CustomException(Errors.INVALID_PASSWORD);
         }
         user.updatePassword(passwordDto.getUpdatePassword());
         userRepository.save(user);
@@ -60,7 +60,7 @@ public class UserService {
     public void resignUser(Long id, UserDeleteRequestDto deleteDto) {
         User user = userRepository.findByIdOrElseThrow(id);
         if (!user.checkPasswordEqual(deleteDto.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다.");
+            throw new CustomException(Errors.INVALID_PASSWORD);
         }
         user.updateEnableFalse();
         userRepository.save(user);
