@@ -116,8 +116,8 @@ public class RelationshipService {
 
     //해당 유저의 모든 친구를 User 리스트 형태로 반환
     //친구는 요청을 승인한 유저만 포함.
-    public List<User> findAllFriends(){
-        User user = userRepository.findById((long) 1).orElseThrow();
+    public List<User> findAllFriends(User user){
+
         List<Relationship> relationshipList = relationshipRepository.findAllAcceptedFriends(user);
         List<User> friends = new ArrayList<>();
         for (Relationship r : relationshipList){
