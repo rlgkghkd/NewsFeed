@@ -7,11 +7,11 @@ import lombok.Getter;
 public class BoardListResponseDto {
     private final String title;
     private final String contents;
-    //userName필요함
+    private final String userName;
 
     public BoardListResponseDto(Board board) {
         this.title = board.getTitle();
         this.contents = board.getContents();
-//        userName필요함
+        this.userName = board.getUser().getName();
     }
 }

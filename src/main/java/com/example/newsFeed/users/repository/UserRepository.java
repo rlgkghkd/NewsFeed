@@ -1,6 +1,10 @@
 package com.example.newsFeed.users.repository;
 
+import com.example.newsFeed.global.exception.CustomException;
+import com.example.newsFeed.global.exception.Errors;
 import com.example.newsFeed.users.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.http.HttpStatus;
@@ -11,8 +15,10 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    Page<User> findByEnableTrue(Pageable pageable);
+
     default User findByIdOrElseThrow(Long id) {
-        return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다." + id));
+        return findById(id).orElseThrow(() -> new CustomException(Errors.USER_NOT_FOUND));
     }
 
     boolean existsByEmail(String email);
@@ -20,6 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByEmail(String email);
 
     default User findUserByEmailOrElseThrow(String email) {
-        return findUserByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+        return findUserByEmail(email).orElseThrow(() -> new CustomException(Errors.USER_NOT_FOUND));
     }
 }
