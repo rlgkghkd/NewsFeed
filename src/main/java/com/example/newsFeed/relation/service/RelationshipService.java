@@ -27,14 +27,14 @@ public class RelationshipService {
     private final TokenUtils tokenUtils;
 
     //친구요청 생성
-    public RelationshipResponseDto sendRequest(Long targetId, HttpServletRequest request) {
+    public RelationshipResponseDto sendRequest(String followingEmail, HttpServletRequest request) {
         String token = tokenUtils.getAccessToken(request);
         Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //본인
         User follower = userRepository.findById(requestId).orElseThrow();
         //요청 보내는 대상
-        User following = userRepository.findById(targetId).orElseThrow();
+        User following = userRepository.findUserByEmailOrElseThrow(followingEmail);
 
         //본인을 대상으로 요청 생성 시 예외처리
         if (follower.equals(following)){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 요청할 수 없습니다.");}

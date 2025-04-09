@@ -20,7 +20,7 @@ public class RelationshipController {
     //친구요청 생성
     @PostMapping
     public RelationshipResponseDto requestRelationship(@RequestBody CreateRelationshipRequestDto dto, HttpServletRequest request) {
-        return relationshipService.sendRequest(dto.getFollowingId(), request);
+        return relationshipService.sendRequest(dto.getFollowingEmail(), request);
     }
 
     //친구요청 조회
