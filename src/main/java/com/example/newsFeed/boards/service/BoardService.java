@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +53,7 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-    public List<BoardResponseDto> getBoardPage(int page, int size, String sorting)
+    public List<BoardResponseDto> getBoardPage(int page, int size, String sorting, LocalDate fromDate, LocalDate toDate)
     {
         if(page < 1)
         {
@@ -67,6 +69,11 @@ public class BoardService {
                 .toList();
 
 
+        //날짜 범위 지정
+        if (fromDate != null){result = result.stream().filter(d->d.getModifiedAt().isAfter(fromDate.atStartOfDay())).toList();}
+        if (toDate != null){result = result.stream().filter(d->d.getModifiedAt().isBefore(toDate.atStartOfDay())).toList();}
+
+        //좋아요, 날짜 역순 정렬
         result = switch (sorting){
             case "likes"->result.stream().sorted(Comparator.comparing(BoardResponseDto::getLikesCount).reversed()).toList();
             case "dates"->result.stream().sorted(Comparator.comparing(BoardResponseDto::getModifiedAt).reversed()).toList();

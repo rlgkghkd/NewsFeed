@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -41,11 +42,14 @@ public class BoardController {
     }
 
     //뉴스피드 조회
-    //sorting 파라미터를 추가해 정렬할 기준을 정함
+    //sorting 파라미터를 추가해 정렬할 기준을 정함. 생략 가능
+    //fromDate ~ toDate 로 검색 일자 범위 설정. 생략 가능
     @GetMapping("/page/{pageNumber}")
     public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size,
+                                               @RequestParam(required = false) LocalDate fromDate,
+                                               @RequestParam(required = false) LocalDate toDate,
                                                @RequestParam(required = false, defaultValue = "") String sorting) {
-        return boardService.getBoardPage(pageNumber,size, sorting);
+        return boardService.getBoardPage(pageNumber,size, sorting, fromDate, toDate);
     }
 
     //findAllFriends
