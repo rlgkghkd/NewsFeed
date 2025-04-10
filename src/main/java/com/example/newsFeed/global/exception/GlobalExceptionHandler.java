@@ -43,12 +43,12 @@ public class GlobalExceptionHandler {
 
     //Repository(JPA) 계층 예외 처리 - DataAccessException 처리
     //(SQL 예외, Lock 획득 실패 등 DB 관련 예외)
-//    @ExceptionHandler(DataAccessException.class)
-//    protected ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
-//        log.error("DataAccessException: {}", ex.getMessage());
-//        ErrorResponse response = ErrorResponse.of(Errors.INTERNAL_SERVER_ERROR, "데이터베이스 접근 중 오류가 발생했습니다.");
-//        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
+    @ExceptionHandler(DataAccessException.class)
+    protected ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
+        log.error("DataAccessException: {}", ex.getMessage());
+        ErrorResponse response = ErrorResponse.of(Errors.INTERNAL_SERVER_ERROR, "데이터베이스 접근 중 오류가 발생했습니다.");
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     // 요청 데이터 타입과 requestDto의 필드 타입이 맞지 않는 경우
     @ExceptionHandler(HttpMessageNotReadableException.class)
