@@ -36,7 +36,7 @@ public class BoardService {
 
         if(result.size()==0)
         {
-            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+            throw new CustomException(Errors.BOARD_NOT_FOUND);
         }
 
         List<BoardResponseDto> dto = result.stream()
@@ -75,7 +75,7 @@ public class BoardService {
 
         if(result.size()==0)
         {
-            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+            throw new CustomException(Errors.BOARD_NOT_FOUND);
         }
 
         List<BoardResponseDto> dto = result.stream()
@@ -117,7 +117,7 @@ public class BoardService {
     //boardId 존재하는지 검사 Board 반환
     public Board checkBoardId(long boardId){
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(Errors.SCHEDULE_NOT_FOUND))
+                .orElseThrow(() -> new CustomException(Errors.BOARD_NOT_FOUND))
                 ;
         return board;
     }
@@ -127,7 +127,7 @@ public class BoardService {
         if(!board.getUser().getId().equals(boardId))
         {
             //Enum 추가해야함 "Board 의 Id와 login Id가 맞지 않는 경우"
-            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+            throw new CustomException(Errors.BOARD_NOT_FOUND);
         }
     }
 
