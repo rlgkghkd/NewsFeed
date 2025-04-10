@@ -1,5 +1,7 @@
 package com.example.newsFeed.jwt.utils;
 
+import com.example.newsFeed.global.exception.CustomException;
+import com.example.newsFeed.global.exception.Errors;
 import com.example.newsFeed.jwt.repository.TokenRedisRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -65,14 +67,17 @@ public class TokenUtils {
     }
 
     public static String getAccessToken(HttpServletRequest request) {
-
         Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            throw new CustomException(Errors.UNAUTHORIZED_ACCESS, "다시 로그인해주세요");
+        }
 
         return Arrays.stream(cookies)
                 .filter(cookie -> "accessToken".equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new CustomException(Errors.UNAUTHORIZED_ACCESS, "accessToken 쿠키가 존재하지 않습니다. 재요청해주세요!"));
     }
 
     // 만료일이 현재 날짜 이전인 경우 Jwt예외를 throws 한다.
