@@ -3,6 +3,7 @@ package com.example.newsFeed.likes.controller;
 import com.example.newsFeed.likes.dto.DeleteLikeDto;
 import com.example.newsFeed.likes.dto.LeaveLikeDto;
 import com.example.newsFeed.likes.dto.LikeResponseDto;
+import com.example.newsFeed.likes.dto.UsersLikeResponseDto;
 import com.example.newsFeed.likes.entity.Like;
 import com.example.newsFeed.likes.service.LikeService;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +33,13 @@ public class LikeController {
         likesService.deleteLike(dto.getBoardId(), token);
     }
 
+
+    //유저가 좋아요 남긴 게시물 조회
     @GetMapping
-    public List<LikeResponseDto> getLikes(
+    public List<UsersLikeResponseDto> getLikes(
+            @RequestParam(name = "board", required = false, defaultValue = "0")int boardId,
             @RequestParam(name = "index", required = false, defaultValue = "1") int index,
             @CookieValue(name = "accessToken") String token){
-        return likesService.getLikes(index, token);
+        return likesService.getLikes(boardId, index, token);
     }
 }
