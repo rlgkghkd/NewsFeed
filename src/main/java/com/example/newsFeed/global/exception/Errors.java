@@ -25,8 +25,11 @@ public enum Errors {
     BOARD_NOT_FOUND(404, "Not Found", "B001", "게시글이 존재하지 않습니다."),
 
     // Follower
-    FOLLOWER_NOT_FOUND(404, "Not Found", "F001", "Follower Not Found");
+    FOLLOWER_NOT_FOUND(404, "Not Found", "F001", "Follower Not Found"),
 
+
+    // TokenRedis
+    TOKEN_REDIS_NOT_FOUND(404, "Not Found", "T001", "Token Redis Not Found");
     private final int status;
     private final String error;
     private final String code;
