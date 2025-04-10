@@ -5,6 +5,8 @@ import com.example.newsFeed.boards.dto.BoardListResponseDto;
 import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.boards.dto.BoardResponseDto;
 import com.example.newsFeed.jwt.utils.TokenUtils;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -30,20 +32,18 @@ public class BoardController {
 
     //전체조회
     @GetMapping
-    public List<BoardResponseDto> getBoardAll(){
+    public List<BoardResponseDto> getBoardAll() {
         return boardService.getBoardAll();
     }
 
     //단건조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable long boardId){
+    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable long boardId) {
         BoardResponseDto dto = boardService.getBoardById(boardId);
         return ResponseEntity.ok(dto);
     }
 
     //뉴스피드 조회
-    //sorting 파라미터를 추가해 정렬할 기준을 정함. 생략 가능
-    //fromDate ~ toDate 로 검색 일자 범위 설정. 생략 가능
     @GetMapping("/page/{pageNumber}")
     public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size,
                                                @RequestParam(required = false) LocalDate fromDate,
@@ -54,37 +54,35 @@ public class BoardController {
 
     //findAllFriends
     @GetMapping("/followFeed")
-    public List<BoardResponseDto> getFollowFeedBoardAll(@CookieValue(name = "accessToken", required = false) String token){
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    public List<BoardResponseDto> getFollowFeedBoardAll(HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         return boardService.getFollowFeedBoardAll(userId);
     }
 
     //추가
     @PostMapping
-    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto,
-                                                        @CookieValue(name = "accessToken", required = false) String token)
-    {
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.createBoard(boardRequestDto, userId);
         return ResponseEntity.ok(dto);
     }
 
     //수정
-    @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable long boardId, @RequestBody BoardRequestDto boardRequestDto
-            , @CookieValue(name = "accessToken", required = false) String token)
-    {
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    @PutMapping("/{boardId}")
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable long boardId, @RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.updateBoard(boardRequestDto, boardId, userId);
         return ResponseEntity.ok(dto);
     }
 
     //삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deleteBoard(@PathVariable long boardId
-            , @CookieValue(name = "accessToken", required = false) String token)
-    {
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    public ResponseEntity<String> deleteBoard(@PathVariable long boardId, HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         boardService.deleteBoard(boardId, userId);
         return ResponseEntity.ok("삭제완료");
     }
