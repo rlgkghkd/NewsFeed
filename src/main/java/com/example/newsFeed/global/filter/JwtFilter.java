@@ -19,7 +19,7 @@ public class JwtFilter implements Filter {
 
     private static final String[] WHITE_LIST = {
             "/users",
-            "/login"
+            "/api/login"
     };
 
     private final TokenUtils tokenUtils;
