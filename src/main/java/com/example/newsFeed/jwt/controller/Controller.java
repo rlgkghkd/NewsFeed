@@ -62,7 +62,7 @@ public class Controller {
 
     @DeleteMapping("/api/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        tokenRedisService.deleteTokenRedis(request);
+        tokenRedisService.deleteTokenRedisInDb(request);
 
         // 쿠키 삭제
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", "")
