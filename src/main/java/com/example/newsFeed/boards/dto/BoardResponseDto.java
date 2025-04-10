@@ -17,6 +17,7 @@ public class BoardResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
+
     public BoardResponseDto(Board board) {
         this.title = board.getTitle();
         this.contents = board.getContents();
@@ -25,5 +26,6 @@ public class BoardResponseDto {
         //좋아요 개수 추가
         this.likesCount = board.getLikesCount();
         this.modifiedAt = board.getModifiedAt();
+
     }
 }

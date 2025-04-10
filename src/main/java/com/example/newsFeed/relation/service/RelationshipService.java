@@ -28,6 +28,7 @@ public class RelationshipService {
     //친구요청 생성
     public RelationshipResponseDto sendRequest(String followingEmail, HttpServletRequest request) {
         String token = TokenUtils.getAccessToken(request);
+
         Long requestId = TokenUtils.getUserIdFromToken(token);
 
         //본인

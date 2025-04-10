@@ -1,11 +1,13 @@
 package com.example.newsFeed.boards.controller;
 
 import com.example.newsFeed.boards.service.BoardService;
+import com.example.newsFeed.boards.dto.BoardListResponseDto;
 import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.boards.dto.BoardResponseDto;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ import java.util.List;
 @RequestMapping("/boards")
 public class BoardController {
     private final BoardService boardService;
+    private final TokenUtils tokenUtils;
 
     /***
      * 조회단건 GET{id} ㅇ
@@ -40,8 +43,6 @@ public class BoardController {
     }
 
     //뉴스피드 조회
-    //sorting 파라미터를 추가해 정렬할 기준을 정함. 생략 가능
-    //fromDate ~ toDate 로 검색 일자 범위 설정. 생략 가능
     @GetMapping("/page/{pageNumber}")
     public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size,
                                                @RequestParam(required = false) LocalDate fromDate,

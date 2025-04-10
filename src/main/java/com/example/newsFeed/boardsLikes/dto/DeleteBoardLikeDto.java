@@ -1,10 +1,10 @@
-package com.example.newsFeed.likes.dto;
+package com.example.newsFeed.boardsLikes.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class DeleteLikeDto {
+public class DeleteBoardLikeDto {
     Long boardId;
 }

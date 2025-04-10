@@ -1,4 +1,4 @@
-package com.example.newsFeed.likes.entity;
+package com.example.newsFeed.boardsLikes.entity;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LikeId implements Serializable {
+public class BoardLikeId implements Serializable {
     private Long boardId;
     private Long userId;
 }
