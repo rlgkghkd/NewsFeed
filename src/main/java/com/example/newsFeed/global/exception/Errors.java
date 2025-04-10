@@ -8,25 +8,27 @@ import lombok.Getter;
 public enum Errors {
 
     // Common
-    INVALID_INPUT_VALUE(400, "Bad Request", "Invalid Input Value"),
-    METHOD_NOT_ALLOWED(405, "Method Not Allowed","Method Not Allowed"),
-    ENTITY_NOT_FOUND(400, "Bad Request", "Entity Not Found"),
-    INTERNAL_SERVER_ERROR(500, "Server Error", "Internal Server Error"),
-    INVALID_TYPE_VALUE(400, "Bad Request", "Invalid Type Value"),
+    INVALID_INPUT_VALUE(400, "Bad Request", "C001", "Invalid Input Value"),
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed", "C002", "Method Not Allowed"),
+    ENTITY_NOT_FOUND(400, "Bad Request", "C003", "Entity Not Found"),
+    INTERNAL_SERVER_ERROR(500, "Server Error", "C004", "Internal Server Error"),
+    INVALID_TYPE_VALUE(400, "Bad Request", "C005", "Invalid Type Value"),
 
     // User
-    EMAIL_DUPLICATION(400, "Bad Request", "Email is Duplicated"),
-    USER_NOT_FOUND(404, "Not Found", "User Not Found"),
-    INVALID_PASSWORD(400, "Bad Request", "Invalid Password"),
-    UNAUTHORIZED_ACCESS(400, "Bad Request", "Unauthorized Access"),
+    EMAIL_DUPLICATION(400, "Bad Request", "U001", "Email is Duplicated"),
+    USER_NOT_FOUND(404, "Not Found", "U002", "User Not Found"),
+    INVALID_PASSWORD(400, "Bad Request", "U003", "Invalid Password"),
+    UNAUTHORIZED_ACCESS(400, "Bad Request", "U004", "Unauthorized Access"),
+    ACCESS_TOKEN_EXPIRATION(400, "Bad Request", "U005", "AccessToken is expired"),
 
     // Board
-    SCHEDULE_NOT_FOUND(404, "Not Found", "Board Not Found"),
+    BOARD_NOT_FOUND(404, "Not Found", "B001", "게시글이 존재하지 않습니다."),
 
     // Follower
-    COMMENT_NOT_FOUND(404, "Not Found", "Follower Not Found");
+    FOLLOWER_NOT_FOUND(404, "Not Found", "F001", "Follower Not Found");
 
     private final int status;
     private final String error;
+    private final String code;
     private final String message;
 }
