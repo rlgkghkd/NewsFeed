@@ -1,13 +1,12 @@
 package com.example.newsFeed.jwt.controller;
 
-import com.example.newsFeed.jwt.service.AuthorizationService;
+import com.example.newsFeed.jwt.service.TokenRedisService;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.jwt.dto.LoginResponseDto;
 import com.example.newsFeed.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +21,7 @@ public class Controller {
 
     private final TokenUtils tokenUtils;
     private final UserService userService;
-    private final AuthorizationService authorizationService;
+    private final TokenRedisService tokenRedisService;
 
 
     @PostMapping
@@ -33,7 +32,7 @@ public class Controller {
         String accessToken = tokenUtils.createAccessToken(id);
         String refreshToken = tokenUtils.createRefreshToken();
 
-        authorizationService.saveRefreshInRedis(id, refreshToken);
+        tokenRedisService.saveRefreshInDb(id, refreshToken);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
