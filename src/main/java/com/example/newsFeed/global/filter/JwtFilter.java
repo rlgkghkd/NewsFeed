@@ -2,13 +2,11 @@ package com.example.newsFeed.global.filter;
 
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import io.jsonwebtoken.*;
-import io.lettuce.core.RedisCommandTimeoutException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.ResponseCookie;
 import org.springframework.util.PatternMatchUtils;
 
@@ -62,11 +60,9 @@ public class JwtFilter implements Filter {
 
                 try {
                     tokenUtils.validateTokenOrThrow(refreshToken);
-
-                    // Redis에 있는 refreshToken인지 확인 후 accessToken 재발급
-                    if (tokenUtils.isRefreshTokenInRedis(refreshToken)) {
-                        Long userId = tokenUtils.extracatRedisValue(refreshToken);
-                        String newAccessToken = tokenUtils.createAccessToken(userId);
+                    // Db에 있는 TokenRedis를 찾은 후 accessToken 재발급
+                    Long userId = tokenUtils.findUserIdByRefreshToken(refreshToken);
+                    String newAccessToken = tokenUtils.createAccessToken(userId);
 
                         ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
                                 .httpOnly(true)
@@ -76,25 +72,13 @@ public class JwtFilter implements Filter {
                                 .sameSite("Strict")
                                 .build();
 
-                        response.addHeader("Set-Cookie", newAccessTokenCookie.toString());
-                        return;
-                    } else {
-                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 Redis에 존재하지 않습니다.");
-                        return;
-                    }
 
                 } catch (ExpiredJwtException ex) {
-                    tokenUtils.deleteRefreshToken(refreshToken);
+                    tokenUtils.deleteTokenRedis(refreshToken);
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 만료되었습니다.");
                     return;
                 } catch (JwtException | IllegalArgumentException ex) {
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "유효하지 않은 RefreshToken입니다.");
-                    return;
-                } catch (RedisConnectionFailureException ex) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Redis 서버 연결 실패.");
-                    return;
-                } catch (RedisCommandTimeoutException ex) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Redis 명령 시간 초과.");
                     return;
                 } catch (DataAccessException ex) {
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "Redis 데이터 접근 실패.");
