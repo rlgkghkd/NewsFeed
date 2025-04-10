@@ -23,7 +23,6 @@ public class Controller {
     private final UserService userService;
     private final TokenRedisService tokenRedisService;
 
-
     @PostMapping
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto) {
 
