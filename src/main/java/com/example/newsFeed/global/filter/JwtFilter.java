@@ -71,6 +71,7 @@ public class JwtFilter implements Filter {
                                 .maxAge(Duration.ofMinutes(3))
                                 .sameSite("Strict")
                                 .build();
+                        response.addHeader("Set-Cookie", newAccessToken);
 
 
                 } catch (ExpiredJwtException ex) {
