@@ -33,6 +33,9 @@ public class Comment extends Base {
 
     private String contents;
 
+    @Setter
+    private Long likes;
+
     public void update(CommentRequestDto dto) {
         this.contents = dto.getContents();
     }
@@ -41,5 +44,6 @@ public class Comment extends Base {
         this.user = user;
         this.board = board;
         this.contents = dto.getContents();
+        this.likes = (long)0;
     }
 }

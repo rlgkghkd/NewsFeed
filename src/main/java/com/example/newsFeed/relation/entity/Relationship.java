@@ -3,10 +3,12 @@ package com.example.newsFeed.relation.entity;
 import com.example.newsFeed.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
-@Table(name = "relationship")
+@Table(name = "relationshipt")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -18,10 +20,12 @@ public class Relationship {
     @MapsId("followerId")
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "follower_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User follower;
     @MapsId("followingId")
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "following_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User following;
 
     private Boolean pending;
