@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/relationships")
+@RequestMapping("/api/relationships")
 public class RelationshipController {
     private final RelationshipService relationshipService;
 
