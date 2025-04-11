@@ -18,6 +18,7 @@ import java.util.List;
 @RequestMapping("/boards/{boardId}/comments")
 public class CommentController {
     private final CommentService commentService;
+    private final TokenUtils tokenUtils;
 
     //BoardId에 따른 Comment 조회
     @GetMapping
@@ -29,8 +30,8 @@ public class CommentController {
     //Comment 추가
     @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long boardId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long userId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long userId = tokenUtils.getUserIdFromToken(token);
         CommentResponseDto dto = commentService.createComment(commentRequestDto, boardId, userId);
         return ResponseEntity.ok(dto);
     }
@@ -38,8 +39,8 @@ public class CommentController {
     //Comment 수정
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long boardId, @PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long userId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long userId = tokenUtils.getUserIdFromToken(token);
         System.out.println(commentId);
         CommentResponseDto dto = commentService.updateComment(commentRequestDto, commentId, userId);
         return ResponseEntity.ok(dto);
@@ -48,11 +49,9 @@ public class CommentController {
     //Comment 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long userId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long userId = tokenUtils.getUserIdFromToken(token);
         commentService.deleteComment(commentId, userId);
         return ResponseEntity.ok("삭제완료");
     }
-
-
 }
