@@ -111,7 +111,6 @@ public class GlobalExceptionHandler {
                     fieldError.getDefaultMessage());
             fieldErrors.add(error);
         }
-
         return fieldErrors;
     }
 }
