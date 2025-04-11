@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -98,6 +99,16 @@ public class GlobalExceptionHandler {
         log.error("MissingServletRequestParameterException: {}", ex.getMessage());
         ErrorResponseDto response = ErrorResponseDto.of(Errors.INVALID_INPUT_VALUE);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 그 외 모든 예외 처리
+     */
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ErrorResponseDto> handleException(Exception ex) {
+        log.error("Exception: {}", ex.getMessage(), ex);
+        ErrorResponseDto response = ErrorResponseDto.of(Errors.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     //BindingResult 에서 발생한 필드 에러 목록을 ErrorResponse.FieldError 목록으로 반환
