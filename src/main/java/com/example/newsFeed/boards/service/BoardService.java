@@ -168,7 +168,7 @@ public class BoardService {
         if(!board.getUser().getId().equals(boardId))
         {
             //Enum 추가해야함 "Board 의 Id와 login Id가 맞지 않는 경우"
-            throw new CustomException(Errors.BOARD_NOT_FOUND);
+            throw new CustomException(Errors.UNAUTHORIZED_ACCESS);
         }
     }
 
