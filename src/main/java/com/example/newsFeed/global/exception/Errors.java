@@ -43,8 +43,8 @@ public enum Errors {
     //Likes
     Likes_NOT_FOUND(400, "Bad Request", "F001", "Likes_Not_Found"),
 
-    // TokenRedis
-    TOKEN_REDIS_NOT_FOUND(404, "Not Found", "T001", "Token Redis Not Found"),
+    // UserToken
+    USER_TOKEN_NOT_FOUND(404, "Not Found", "T001", "Token Redis Not Found"),
 
     // Jwt
     JWT_UNKNOWN(403, "Forbidden", "J000", "알 수 없는 JWT 예외입니다."),

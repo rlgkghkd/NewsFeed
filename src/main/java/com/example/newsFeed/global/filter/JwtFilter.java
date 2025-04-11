@@ -2,7 +2,7 @@ package com.example.newsFeed.global.filter;
 
 import com.example.newsFeed.global.exception.ErrorResponseDto;
 import com.example.newsFeed.global.exception.Errors;
-import com.example.newsFeed.jwt.service.TokenRedisService;
+import com.example.newsFeed.jwt.service.UserTokenService;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -23,12 +23,12 @@ public class JwtFilter implements Filter {
     // TokenUtils 클래스 의존성 주입
     private final TokenUtils tokenUtils;
 
-    private final TokenRedisService tokenRedisService;
+    private final UserTokenService userTokenService;
 
     // TokenUtils 클래스 의존성 주입을 위한 생성자 autoWired X
-    public JwtFilter(TokenUtils tokenUtils, TokenRedisService tokenRedisService) {
+    public JwtFilter(TokenUtils tokenUtils, UserTokenService userTokenService) {
         this.tokenUtils = tokenUtils;
-        this.tokenRedisService = tokenRedisService;
+        this.userTokenService = userTokenService;
     }
 
     @Override
@@ -59,8 +59,8 @@ public class JwtFilter implements Filter {
                     // refreshToken 유효성 검증
                     tokenUtils.validateTokenOrThrow(refreshToken);
 
-                    // refreshToken으로 Db에서 TokenRedis를 찾은 후 userId를 추출
-                    Long userId = tokenRedisService.findUserIdByRefreshToken(refreshToken);
+                    // refreshToken으로 Db에서 UserToken 찾은 후 userId를 추출
+                    Long userId = userTokenService.findUserIdByRefreshToken(refreshToken);
 
                     // 추출된 userId로 재발급용 accessToken을 생성
                     String newAccessToken = tokenUtils.createAccessToken(userId);
@@ -68,9 +68,9 @@ public class JwtFilter implements Filter {
                     // access토큰을 쿠키에 담아 HttpServletResponse Header에 재발급
                     tokenUtils.refreshAccessTokenCookie(response, newAccessToken);
 
-                    // refreshToken이 만료가 된 경우 Db의 TokenRedis를 삭제하고 재로그인 요구 응답
+                    // refreshToken이 만료가 된 경우 Db의 UserToken를 삭제하고 재로그인 요구 응답
                 } catch (ExpiredJwtException ex) {
-                    tokenRedisService.deleteTokenRedisByFresh(refreshToken);
+                    userTokenService.deleteUserTokenByRefreshToken(refreshToken);
                     handleTokenException(response, ex, "RefreshToken");
                     return;
 
