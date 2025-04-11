@@ -25,15 +25,16 @@ public class BoardLikeService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final BoardLikeRepository likesRepository;
+    private final TokenUtils tokenUtils;
 
     
     //게시물에 좋아요 남기기
     //좋아요 남긴 이후 게시물의 likes 필드 수정
     @Transactional
     public BoardLikeResponseDto leaveLike(Long boardId, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
+        String token = tokenUtils.getAccessToken(request);
         Board board = boardRepository.findById(boardId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
-        User user = userRepository.findByIdOrElseThrow(TokenUtils.getUserIdFromToken(token));
+        User user = userRepository.findByIdOrElseThrow(tokenUtils.getUserIdFromToken(token));
 
 
         //게시물을 작성한 유저가 본인인 경우 좋아요를 남길 수 없음
@@ -51,8 +52,8 @@ public class BoardLikeService {
     //좋아요 삭제
     @Transactional
     public void deleteLike(Long boardId, HttpServletRequest request){
-        String token = TokenUtils.getAccessToken(request);
-        User user = userRepository.findByIdOrElseThrow(TokenUtils.getUserIdFromToken(token));
+        String token = tokenUtils.getAccessToken(request);
+        User user = userRepository.findByIdOrElseThrow(tokenUtils.getUserIdFromToken(token));
         Board board = boardRepository.findById(boardId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
         BoardLike target = likesRepository.findByBoardAndUser(board, user).orElseThrow(()->new CustomException(Errors.Likes_NOT_FOUND));
 

@@ -26,17 +26,19 @@ import java.util.List;
 public class RelationshipService {
     private final RelationshipRepository relationshipRepository;
     private final UserRepository userRepository;
+    private final TokenUtils tokenUtils;
 
     //친구요청 생성
     public RelationshipResponseDto sendRequest(String followingEmail, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
 
         //본인
-        User follower = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
+        User follower = userRepository.findById(tokenUtils.getUserIdFromToken(token)).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
         //요청 보내는 대상
         User following = userRepository.findUserByEmailOrElseThrow(followingEmail);
 
+        //삭제된 유저 대상으로 요청할 수 없음
+        if (!following.isEnable()){throw new CustomException(Errors.USER_NOT_FOUND);}
         //본인을 대상으로 요청 생성 시 예외처리
         if (follower.equals(following)){throw new CustomException(Errors.REQUEST_TO_SELF);}
         //중복되는 요청 존재시 예외처리
@@ -54,13 +56,12 @@ public class RelationshipService {
     //요청 상태는 pending으로 판단. true일 시 응답이 필요한 요청, false일 시 이미 승인된 요청.
     @Transactional
     public void responseRelationship(Long followerId, boolean response, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
 
         //요청을 보낸 유저
         User follower = userRepository.findById(followerId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
         //요청을 받는 대상(임시 본인)
-        User following = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
+        User following = userRepository.findById(tokenUtils.getUserIdFromToken(token)).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
 
 
         List<Relationship> relationship = relationshipRepository.findALLByFollowerAndFollowing(follower, following).orElseThrow();
@@ -77,13 +78,11 @@ public class RelationshipService {
 
     //요청 삭제
     //승인, 미승인 된 요청 모두 삭제 가능
-    @Transactional
     public void deleteRelationship(Long otherId, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
 
         //본인
-        User me = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
+        User me = userRepository.findById(tokenUtils.getUserIdFromToken(token)).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
         //요청의 대상
         User other =  userRepository.findById(otherId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
 
@@ -93,16 +92,21 @@ public class RelationshipService {
         relationshipRepository.delete(relationship);
     }
 
+    //유저와 관련된 모든 요청 삭제
+    public void deleteAllRelationship(User user){
+        List<Relationship> allRelationship = relationshipRepository.findAllByFollowerOrFollowing(user,user).orElseThrow();
+        relationshipRepository.deleteAll(allRelationship);
+    }
+
 
     //요청 조회
     //본인과 관련된 요청만 조회 가능.
     //전달받은 type 파라미터에 따라 다른 동작
     public List<RelationshipResponseDto> findRelationship(String type, HttpServletRequest request, int index) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
 
         //본인
-        User userFoundById = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
+        User userFoundById = userRepository.findById(tokenUtils.getUserIdFromToken(token)).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(index-1, 10);
 
