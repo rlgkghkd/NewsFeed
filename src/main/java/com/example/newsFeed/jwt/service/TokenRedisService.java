@@ -2,19 +2,18 @@ package com.example.newsFeed.jwt.service;
 
 import com.example.newsFeed.jwt.entity.TokenRedis;
 import com.example.newsFeed.jwt.repository.TokenRedisRepository;
+import com.example.newsFeed.jwt.utils.TokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-
-import static com.example.newsFeed.jwt.utils.TokenUtils.getAccessToken;
-import static com.example.newsFeed.jwt.utils.TokenUtils.getUserIdFromToken;
 
 @RequiredArgsConstructor
 @Service
 public class TokenRedisService {
 
     private final TokenRedisRepository tokenRedisRepository;
+    private final TokenUtils tokenUtils;
 
     public void saveRefreshInDb(Long userId, String refreshToken) {
         TokenRedis tokenRedis = TokenRedis.toEntity(userId, refreshToken);
@@ -22,8 +21,8 @@ public class TokenRedisService {
     }
 
     public void deleteTokenById(HttpServletRequest request) {
-        String accessToken = getAccessToken(request);
-        Long id = getUserIdFromToken(accessToken);
+        String accessToken = tokenUtils.getAccessToken(request);
+        Long id = tokenUtils.getUserIdFromToken(accessToken);
         tokenRedisRepository.deleteById(id);
     }
 
