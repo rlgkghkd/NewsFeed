@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,6 +73,19 @@ public class UserController {
         String token = tokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
         Long userId = tokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
         userService.resignUser(userId, deleteDto);
-        return ResponseEntity.ok().body("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
+
+        // AccessToken 쿠키 삭제 (maxAge 0으로 설정)
+        ResponseCookie accessTokenCookie = tokenUtils.deleteAccessCookie();
+        // RefreshToken 쿠키 삭제 (maxAge 0으로 설정)
+        ResponseCookie refreshTokenCookie = tokenUtils.deleteRefreshCookie();
+
+        //헤더에 기간이 0인 쿠키들 등록
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
     }
 }

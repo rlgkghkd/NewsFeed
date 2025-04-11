@@ -25,7 +25,6 @@ public enum Errors {
     USER_NOT_FOUND(404, "Not Found", "U002", "User Not Found"),
     INVALID_PASSWORD(400, "Bad Request", "U003", "Invalid Password"),
     UNAUTHORIZED_ACCESS(400, "Bad Request", "U004", "Unauthorized Access"),
-    ACCESS_TOKEN_EXPIRATION(400, "Bad Request", "U005", "AccessToken is expired"),
 
     // Board
     BOARD_NOT_FOUND(404, "Not Found", "B001", "게시글이 존재하지 않습니다."),
@@ -44,8 +43,8 @@ public enum Errors {
     //Likes
     Likes_NOT_FOUND(400, "Bad Request", "F001", "Likes_Not_Found"),
 
-    // TokenRedis
-    TOKEN_REDIS_NOT_FOUND(404, "Not Found", "T001", "Token Redis Not Found"),
+    // UserToken
+    USER_TOKEN_NOT_FOUND(404, "Not Found", "T001", "Token Redis Not Found"),
 
     // Jwt
     JWT_UNKNOWN(403, "Forbidden", "J000", "알 수 없는 JWT 예외입니다."),

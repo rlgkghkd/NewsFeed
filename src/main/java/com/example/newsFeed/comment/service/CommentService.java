@@ -12,6 +12,7 @@ import com.example.newsFeed.global.exception.CustomException;
 import com.example.newsFeed.global.exception.Errors;
 import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.users.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ public class CommentService {
     }
 
     //Comment 생성
+    @Transactional
     public CommentResponseDto createComment(CommentRequestDto dto, Long boardId, Long userId) {
         User user = userService.getUserById(userId);
         Board board = boardService.checkBoardId(boardId);
@@ -55,6 +57,7 @@ public class CommentService {
     }
 
     //Comment 수정
+    @Transactional
     public CommentResponseDto updateComment(CommentRequestDto dto, Long commentId, Long userId) {
         Comment comment = checkCommentId(commentId);
         checkCommentIdEqualsLoginId(comment, userId);
@@ -64,9 +67,11 @@ public class CommentService {
     }
 
     //Comment 삭제
-    public void deleteComment(Long commentId, Long userId) {
+    @Transactional
+    public void deleteComment(Long commentId, Long boardId, Long userId) {
         Comment comment = checkCommentId(commentId);
-        checkCommentIdEqualsLoginId(comment, userId);
+        Board board = boardService.checkBoardId(boardId);
+        checkBoardIdEqualsUserId(comment, board, userId);
         commentRepository.delete(comment);
 
     }
@@ -87,6 +92,17 @@ public class CommentService {
         if (!comment.getUser().getId().equals(boardId)) {
             throw new CustomException(Errors.UNAUTHORIZED_ACCESS);
         }
+    }
+    //BoardId와 UserId가 같거나, CommentId와 UserId가 같은 경우 삭제가능
+    public void checkBoardIdEqualsUserId(Comment comment, Board board, Long userId){
+        Long commentUserId = comment.getUser().getId();
+        Long boardUserId = board.getId();
+
+        if( !userId.equals(commentUserId) && !userId.equals(boardUserId) )
+        {
+            throw new CustomException(Errors.UNAUTHORIZED_ACCESS);
+        }
+
     }
 
 }

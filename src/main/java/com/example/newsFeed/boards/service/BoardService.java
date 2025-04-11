@@ -10,6 +10,7 @@ import com.example.newsFeed.global.exception.Errors;
 import com.example.newsFeed.relation.service.RelationshipService;
 import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.users.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -129,6 +130,7 @@ public class BoardService {
     }
 
     // Board 생성
+    @Transactional
     public BoardResponseDto createBoard(BoardRequestDto dto, Long userId)
     {
         User user = userService.getUserById(userId);
@@ -138,6 +140,7 @@ public class BoardService {
     }
 
     // Board Update 생성
+    @Transactional
     public BoardResponseDto updateBoard(BoardRequestDto dto,Long boardId, Long userId)
     {
         Board board = checkBoardId(boardId);
@@ -148,6 +151,7 @@ public class BoardService {
     }
 
     // Board 삭제
+    @Transactional
     public void deleteBoard(Long boardId, Long userId)
     {
         Board board = checkBoardId(boardId);
@@ -172,8 +176,7 @@ public class BoardService {
     public void checkBoardIdEqualsLoginId(Board board, Long boardId){
         if(!board.getUser().getId().equals(boardId))
         {
-            //Enum 추가해야함 "Board 의 Id와 login Id가 맞지 않는 경우"
-            throw new CustomException(Errors.BOARD_NOT_FOUND);
+            throw new CustomException(Errors.UNAUTHORIZED_ACCESS);
         }
     }
 

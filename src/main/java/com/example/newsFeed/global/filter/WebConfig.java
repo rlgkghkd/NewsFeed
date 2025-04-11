@@ -1,6 +1,6 @@
 package com.example.newsFeed.global.filter;
 
-import com.example.newsFeed.jwt.service.TokenRedisService;
+import com.example.newsFeed.jwt.service.UserTokenService;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +13,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    // JwtFilter에서 사용할 TokenUtils, TokenRedisService를 주입
+    // JwtFilter에서 사용할 TokenUtils, UserTokenService를 주입
     private final TokenUtils tokenUtils;
-    private final TokenRedisService tokenRedisService;
+    private final UserTokenService userTokenService;
 
     // JwtFilter를 Spring 컨테이너에 등록하기 위한 Bean 정의
     @Bean
@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
         FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
 
         // JwtFilter 인스턴스를 생성하여 등록 (의존성 주입 포함)
-        filterRegistrationBean.setFilter(new JwtFilter(tokenUtils, tokenRedisService));
+        filterRegistrationBean.setFilter(new JwtFilter(tokenUtils, userTokenService));
 
         // 필터의 실행 순서 설정 (숫자가 낮을수록 먼저 실행됨)
         filterRegistrationBean.setOrder(1);

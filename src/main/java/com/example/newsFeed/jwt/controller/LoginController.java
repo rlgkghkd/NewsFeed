@@ -1,7 +1,7 @@
 package com.example.newsFeed.jwt.controller;
 
 import com.example.newsFeed.jwt.dto.LogoutResponseDto;
-import com.example.newsFeed.jwt.service.TokenRedisService;
+import com.example.newsFeed.jwt.service.UserTokenService;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.jwt.dto.LoginResponseDto;
@@ -25,7 +25,7 @@ public class LoginController {
     // 사용자 관련 서비스
     private final UserService userService;
     // RefreshToken 저장 및 삭제 처리 서비스
-    private final TokenRedisService tokenRedisService;
+    private final UserTokenService userTokenService;
 
     /**
      * 로그인 요청 처리
@@ -43,7 +43,7 @@ public class LoginController {
         String refreshToken = tokenUtils.createRefreshToken();
 
         // RefreshToken을 DB에 저장 (userId와 함께)
-        tokenRedisService.saveRefreshInDb(id, refreshToken);
+        userTokenService.saveRefreshInDb(id, refreshToken);
 
         // AccessToken 쿠키 생성 (HttpOnly, Secure, SameSite 설정 포함)
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
@@ -82,25 +82,13 @@ public class LoginController {
     public ResponseEntity<LogoutResponseDto> logout(HttpServletRequest request) {
 
         // RefreshToken DB에서 삭제
-        tokenRedisService.deleteTokenById(request);
+        userTokenService.deleteTokenById(request);
 
         // AccessToken 쿠키 삭제 (maxAge 0으로 설정)
-        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Strict")
-                .build();
+        ResponseCookie accessTokenCookie = tokenUtils.deleteAccessCookie();
 
         // RefreshToken 쿠키 삭제 (maxAge 0으로 설정)
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Strict")
-                .build();
+        ResponseCookie refreshTokenCookie = tokenUtils.deleteRefreshCookie();
 
         //헤더에 기간이 0인 쿠키들 등록
         HttpHeaders headers = new HttpHeaders();
