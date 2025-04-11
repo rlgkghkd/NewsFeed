@@ -67,26 +67,28 @@ public class TokenUtils {
 
     //HttpServletRequest에서 accessToken을 가져오는 메서드
     public String getAccessToken(HttpServletRequest request) {
-        return  getTokenWithVerification(request, "accessToken");
+        return getTokenWithVerification(request, "accessToken");
     }
+
     //HttpServletRequest에서 refreshToken을 가져오는 메서드
     public String getRefreshToken(HttpServletRequest request) {
         return getTokenWithVerification(request, "refreshToken");
     }
+
     //HttpServletRequest에서 매개 타입별 Token을 가져오는 메서드
-public String getTokenWithVerification(HttpServletRequest request, String tokenType) {
-    Cookie[] cookies = request.getCookies();
+    public String getTokenWithVerification(HttpServletRequest request, String tokenType) {
+        Cookie[] cookies = request.getCookies();
 
-    if (cookies == null) {
-        throw new CustomException(Errors.UNAUTHORIZED_ACCESS, "다시 로그인해주세요");
+        if (cookies == null) {
+            throw new CustomException(Errors.UNAUTHORIZED_ACCESS, "다시 로그인해주세요");
+        }
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> tokenType.equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElseThrow(() -> new CustomException(Errors.UNAUTHORIZED_ACCESS, tokenType + " 쿠키가 존재하지 않습니다. 재요청해주세요!"));
     }
-
-    return Arrays.stream(cookies)
-            .filter(cookie -> tokenType.equals(cookie.getName()))
-            .map(Cookie::getValue)
-            .findFirst()
-            .orElseThrow(() -> new CustomException(Errors.UNAUTHORIZED_ACCESS, tokenType + " 쿠키가 존재하지 않습니다. 재요청해주세요!"));
-}
 
     // token을 parsing하면서 그 외 Jwt예외들 throw 한다.
     public void validateTokenOrThrow(String token) throws JwtException {
@@ -102,5 +104,23 @@ public String getTokenWithVerification(HttpServletRequest request, String tokenT
                 .sameSite("Strict")
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private ResponseCookie deleteCookie(String token){
+        return ResponseCookie.from(token, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+    }
+
+    public ResponseCookie deleteAccessCookie(){
+        return deleteCookie("accessToken");
+    }
+
+    public ResponseCookie deleteRefreshCookie(){
+        return deleteCookie("refreshToken");
     }
 }
