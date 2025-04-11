@@ -125,4 +125,20 @@ public class TokenUtils {
     public ResponseCookie deleteRefreshCookie(){
         return buildZeroCookie("refreshToken");
     }
+
+
+    //HttpServletRequest에서 accToken 또는 null을 반환하는 메서드
+    public String getAccessTokenOrNull(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            throw new CustomException(Errors.UNAUTHORIZED_ACCESS, "다시 로그인해주세요");
+        }
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> "accessToken".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+    }
 }
