@@ -85,22 +85,10 @@ public class LoginController {
         tokenRedisService.deleteTokenById(request);
 
         // AccessToken 쿠키 삭제 (maxAge 0으로 설정)
-        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Strict")
-                .build();
+        ResponseCookie accessTokenCookie = tokenUtils.deleteAccessCookie();
 
         // RefreshToken 쿠키 삭제 (maxAge 0으로 설정)
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Strict")
-                .build();
+        ResponseCookie refreshTokenCookie = tokenUtils.deleteRefreshCookie();
 
         //헤더에 기간이 0인 쿠키들 등록
         HttpHeaders headers = new HttpHeaders();

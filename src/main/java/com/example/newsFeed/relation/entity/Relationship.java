@@ -18,12 +18,12 @@ public class Relationship {
     private RelationshipId id;
 
     @MapsId("followerId")
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "follower_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User follower;
     @MapsId("followingId")
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "following_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User following;

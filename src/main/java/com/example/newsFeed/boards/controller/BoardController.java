@@ -7,6 +7,7 @@ import com.example.newsFeed.boards.dto.BoardResponseDto;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,9 +50,10 @@ public class BoardController {
     }
 
     //업그레이드 뉴스피드 조회
-    @GetMapping("/{fromDate}/{toDate}")
-    public List<BoardResponseDto> getUpgradeFeed(@RequestParam(required = false) LocalDate fromDate,
-                                               @RequestParam(required = false) LocalDate toDate,
+    @SneakyThrows
+    @GetMapping("/newsFeed/{fromDate}/{toDate}")
+    public List<BoardResponseDto> getUpgradeFeed(@PathVariable(required = false) String fromDate,
+                                               @PathVariable(required = false) String toDate,
                                                @RequestParam(required = false, defaultValue = "") String sorting) {
         return boardService.getUpgradeFeed(sorting, fromDate, toDate);
     }
