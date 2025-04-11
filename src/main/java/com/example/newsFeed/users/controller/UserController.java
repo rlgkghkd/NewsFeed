@@ -38,9 +38,10 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
+    //유저 정보 변경
     @PutMapping()
     public ResponseEntity<UserResponseDto> updateUserInfo(
-            @RequestBody UserUpdateRequestDto updateDto,
+            @Valid @RequestBody UserUpdateRequestDto updateDto,
             HttpServletRequest request
     ) {
         String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
@@ -49,10 +50,10 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
-    //비밀번호 수정
+    //유저 비밀번호 변경
     @PatchMapping()
     public ResponseEntity<String> updateUserPassword(
-            @RequestBody UserPasswordRequestDto passwordDto,
+            @Valid @RequestBody UserPasswordRequestDto passwordDto,
             HttpServletRequest request
     ) {
         String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
@@ -64,7 +65,7 @@ public class UserController {
     //회원탈퇴
     @PatchMapping("/resign")
     public ResponseEntity<String> resignUser(
-            @RequestBody UserDeleteRequestDto deleteDto,
+            @Valid @RequestBody UserDeleteRequestDto deleteDto,
             HttpServletRequest request
     ) {
         String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기

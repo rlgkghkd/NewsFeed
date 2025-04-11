@@ -23,14 +23,16 @@ public class User extends Base {
     private String introduction;
     private boolean enable;
 
+    //UserSignUpRequestDto를 User Entity로 변환
     public static User toEntity(UserSignUpRequestDto dto) {
         //암호화
         String encodedPassword = PasswordEncoder.encode(dto.getPassword());
         return new User(dto.getEmail(), dto.getName(), encodedPassword, dto.getDate().atStartOfDay(), dto.getIntroduction(), true);
     }
 
-    public boolean checkPasswordEqual(String password) {
-        return PasswordEncoder.matches(password, this.password);
+    //비밀번호 일치 여부 확인, 불일치 시 true 반환
+    public boolean isPasswordMismatch(String password) {
+        return !PasswordEncoder.matches(password, this.password);
     }
 
     public void updateName(String name) {
@@ -48,6 +50,7 @@ public class User extends Base {
         this.introduction = introduction;
     }
 
+    //회원 탈퇴 후, 사용 가능 여부 불가로 변경
     public void updateEnableFalse() {
         this.enable = false;
     }

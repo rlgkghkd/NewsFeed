@@ -29,5 +29,6 @@ public class UserSignUpRequestDto {
     private final LocalDate date;
 
     //공백 가능
+    @NotNull(message = "소개는 필수입니다.")
     private final String introduction;
 }

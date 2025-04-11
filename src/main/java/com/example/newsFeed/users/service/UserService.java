@@ -21,6 +21,7 @@ public class UserService {
     private final BoardRepository boardRepository;
     private final RelationshipRepository relationshipRepository;
 
+    //회원가입
     public void signUp(UserSignUpRequestDto signUpDto) {
         //이미 존재하는 이메일인지 확인
         if (userRepository.existsByEmail((signUpDto.getEmail()))) {
@@ -31,6 +32,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    //유저 정보 페이징 조회
     public Page<UserListResponseDto> getUserPage(int page, int size) {
         if (page < 1) {
             page = 1;
@@ -40,7 +42,6 @@ public class UserService {
         Page<User> users = userRepository.findByEnableTrue(pageable);
         return users.map(UserListResponseDto::toDto);
     }
-
 
     //id로 User 찾아서 UserResponseDto로 반환
     public UserResponseDto findUserById(Long userId) {
@@ -71,7 +72,7 @@ public class UserService {
     public void updateUserPassword(Long id, UserPasswordRequestDto passwordDto) {
         User user = userRepository.findByIdOrElseThrow(id);
         //현재 비밀번호가 일치하는지 확인 후 비밀번호 변경
-        if (!user.checkPasswordEqual(passwordDto.getCurrentPassword())) {
+        if (user.isPasswordMismatch(passwordDto.getCurrentPassword())) {
             throw new CustomException(Errors.INVALID_PASSWORD);
         }
         user.updatePassword(passwordDto.getUpdatePassword());
@@ -84,7 +85,7 @@ public class UserService {
         if (!user.isEnable()){
             throw new CustomException(Errors.USER_NOT_FOUND, "This user has already been deleted");
         }
-        if (!user.checkPasswordEqual(deleteDto.getPassword())) {
+        if (user.isPasswordMismatch(deleteDto.getPassword())) {
             throw new CustomException(Errors.INVALID_PASSWORD);
         }
         user.updateEnableFalse();
@@ -98,7 +99,7 @@ public class UserService {
             throw new CustomException(Errors.USER_NOT_FOUND, "This user has already been deleted");
         }
 
-        if (!user.checkPasswordEqual(requestDto.getPassword())) {
+        if (user.isPasswordMismatch(requestDto.getPassword())) {
             throw new CustomException(Errors.INVALID_PASSWORD);
         }
 

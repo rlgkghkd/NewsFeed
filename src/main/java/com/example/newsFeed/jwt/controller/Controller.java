@@ -4,6 +4,7 @@ import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.example.newsFeed.jwt.dto.LoginRequestDto;
 import com.example.newsFeed.jwt.dto.LoginResponseDto;
 import com.example.newsFeed.users.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -22,7 +23,7 @@ public class Controller {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto) {
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto) {
 
         Long id = userService.login(requestDto);
 
