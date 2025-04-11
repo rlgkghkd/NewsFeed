@@ -31,19 +31,18 @@ public enum Errors {
     BOARD_NOT_FOUND(404, "Not Found", "B001", "게시글이 존재하지 않습니다."),
 
     // COMMENT
-    COMMENT_NOT_FOUND(404, "Not Found", "Comment Not Found"),
+    COMMENT_NOT_FOUND(404, "Not Found", "C001", "Comment Not Found"),
 
     // Follower
-    FOLLOWER_NOT_FOUND(404, "Not Found", "Follower Not Found"),
-    RELATION_NOT_FOUND(404, "Not Found", "Relations Not Found"),
-    BAD_REQUEST_TYPE(400, "Bad Request", "Bad Request Type"),
-    REQUEST_ALREADY_ACCEPTED(400, "Bad Request", "Request already accepted"),
-    REQUEST_ALREADY_EXIST(400, "Bad Request", "Request already exist"),
-    REQUEST_TO_SELF(400, "Bad Request", "Can't request to self"),
+    FOLLOWER_NOT_FOUND(404, "Not Found", "F001", "Follower Not Found"),
+    RELATION_NOT_FOUND(404, "Not Found", "F002", "Relations Not Found"),
+    BAD_REQUEST_TYPE(400, "Bad Request", "F003", "Bad Request Type"),
+    REQUEST_ALREADY_ACCEPTED(400, "Bad Request", "F004", "Request already accepted"),
+    REQUEST_ALREADY_EXIST(400, "Bad Request", "F005",  "Request already exist"),
+    REQUEST_TO_SELF(400,"Bad Request",  "F006", "Can't request to self"),
 
     //Likes
-    Likes_NOT_FOUND(400, "Bad Request", "Likes_Not_Found");
-    FOLLOWER_NOT_FOUND(404, "Not Found", "F001", "Follower Not Found"),
+    Likes_NOT_FOUND(400, "Bad Request", "F001", "Likes_Not_Found"),
 
     // TokenRedis
     TOKEN_REDIS_NOT_FOUND(404, "Not Found", "T001", "Token Redis Not Found"),
