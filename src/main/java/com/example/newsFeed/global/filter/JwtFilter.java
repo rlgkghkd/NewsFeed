@@ -10,6 +10,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.PatternMatchUtils;
+
 import java.io.IOException;
 import java.util.Optional;
 
@@ -56,10 +57,11 @@ public class JwtFilter implements Filter {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
 
-            } catch (ExpiredJwtException e) {
                 // accessToken이 만료되었을 경우 → refreshToken으로 재발급 시도 (아래에서 처리)
-            } catch (Exception e) {
+            } catch (ExpiredJwtException e) {
+
                 // accessToken이 만료 외의 문제로 유효하지 않으면 → 바로 에러 응답
+            } catch (Exception e) {
                 handleTokenException(response, e, "AccessToken");
                 return;
             }
@@ -69,10 +71,12 @@ public class JwtFilter implements Filter {
         // 책임을 분리하기 위해서 refreshToken 유효성 검증 부분과 try-catch를 나누었다.
         // 분기별로 다른 로직을 확장할 여지 또한 남기기 위함도 있다.
         try {
+
             // refreshToken이 존재하지 않거나 쿠키가 없을 경우 여기서 예외 발생 → 재로그인 요구
             String refreshToken = tokenUtils.getRefreshToken(request);
 
             try {
+
                 // refreshToken 유효성 검증
                 tokenUtils.validateTokenOrThrow(refreshToken);
 
@@ -104,6 +108,7 @@ public class JwtFilter implements Filter {
         } catch (Exception e) {
             // refreshToken 자체가 없거나 쿠키가 없어서 예외가 발생한 경우
             handleTokenException(response, e, "RefreshToken");
+            return;
         }
     }
 
