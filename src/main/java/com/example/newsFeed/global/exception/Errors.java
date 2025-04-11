@@ -24,7 +24,16 @@ public enum Errors {
     SCHEDULE_NOT_FOUND(404, "Not Found", "Board Not Found"),
 
     // Follower
-    COMMENT_NOT_FOUND(404, "Not Found", "Follower Not Found");
+    COMMENT_NOT_FOUND(404, "Not Found", "Follower Not Found"),
+    FOLLOWER_NOT_FOUND(404, "Not Found", "Follower Not Found"),
+    RELATION_NOT_FOUND(404, "Not Found", "Relations Not Found"),
+    BAD_REQUEST_TYPE(400, "Bad Request", "Bad Request Type"),
+    REQUEST_ALREADY_ACCEPTED(400, "Bad Request", "Request already accepted"),
+    REQUEST_ALREADY_EXIST(400, "Bad Request", "Request already exist"),
+    REQUEST_TO_SELF(400, "Bad Request", "Can't request to self"),
+
+    //Likes
+    Likes_NOT_FOUND(400, "Bad Request", "Likes_Not_Found");
 
     private final int status;
     private final String error;

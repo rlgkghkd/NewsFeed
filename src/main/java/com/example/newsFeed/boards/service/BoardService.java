@@ -146,12 +146,4 @@ public class BoardService {
             throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
         }
     }
-
-
-
-
-
-
-
-
 }

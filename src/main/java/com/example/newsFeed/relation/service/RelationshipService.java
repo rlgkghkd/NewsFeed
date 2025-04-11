@@ -1,5 +1,7 @@
 package com.example.newsFeed.relation.service;
 
+import com.example.newsFeed.global.exception.CustomException;
+import com.example.newsFeed.global.exception.Errors;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.example.newsFeed.relation.dto.RelationshipResponseDto;
 import com.example.newsFeed.relation.entity.Relationship;
@@ -28,19 +30,18 @@ public class RelationshipService {
     //친구요청 생성
     public RelationshipResponseDto sendRequest(String followingEmail, HttpServletRequest request) {
         String token = TokenUtils.getAccessToken(request);
-
         Long requestId = TokenUtils.getUserIdFromToken(token);
 
         //본인
-        User follower = userRepository.findById(requestId).orElseThrow();
+        User follower = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
         //요청 보내는 대상
         User following = userRepository.findUserByEmailOrElseThrow(followingEmail);
 
         //본인을 대상으로 요청 생성 시 예외처리
-        if (follower.equals(following)){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 요청할 수 없습니다.");}
+        if (follower.equals(following)){throw new CustomException(Errors.REQUEST_TO_SELF);}
         //중복되는 요청 존재시 예외처리
         //본인과 대상이 동일한 요청, 혹은 반대인 경우를 조회.
-        if (!relationshipRepository.findSpecificRelationship(follower, following).isEmpty()){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 요청입니다.");}
+        if (!relationshipRepository.findSpecificRelationship(follower, following).isEmpty()){throw new CustomException(Errors.REQUEST_ALREADY_EXIST);}
 
         //요청 생성 후 저장
         //pending은 true로 초기화
@@ -57,16 +58,16 @@ public class RelationshipService {
         Long requestId = TokenUtils.getUserIdFromToken(token);
 
         //요청을 보낸 유저
-        User follower = userRepository.findById(followerId).orElseThrow();
+        User follower = userRepository.findById(followerId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
         //요청을 받는 대상(임시 본인)
-        User following = userRepository.findById(requestId).orElseThrow();
+        User following = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
 
 
         List<Relationship> relationship = relationshipRepository.findALLByFollowerAndFollowing(follower, following).orElseThrow();
         //조회된 요청이 없을 시 예외
-        if(relationship.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "없는 요청입니다.");}
+        if(relationship.isEmpty()){throw new CustomException(Errors.RELATION_NOT_FOUND);}
         //요청의 pending이 false일 경우 예외
-        if(relationship.get(0).getPending().equals(false)){throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 처리된 요청입니다.");}
+        if(relationship.get(0).getPending().equals(false)){throw new CustomException(Errors.REQUEST_ALREADY_ACCEPTED);}
 
         //요청에 대한 응답이 true인 경우 pending을 false로 세팅
         if (response) {relationship.get(0).setPending(false);}
@@ -82,9 +83,9 @@ public class RelationshipService {
         Long requestId = TokenUtils.getUserIdFromToken(token);
 
         //본인
-        User me = userRepository.findById(requestId).orElseThrow();
+        User me = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
         //요청의 대상
-        User other =  userRepository.findById(otherId).orElseThrow();
+        User other =  userRepository.findById(otherId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
 
         //본인, 대상 유저 기반으로 요청 조회
         Relationship relationship = relationshipRepository.findSpecificRelationship(me, other).get(0);
@@ -101,7 +102,7 @@ public class RelationshipService {
         Long requestId = TokenUtils.getUserIdFromToken(token);
 
         //본인
-        User userFoundById = userRepository.findById(requestId).orElseThrow();
+        User userFoundById = userRepository.findById(requestId).orElseThrow(()->new CustomException(Errors.USER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(index-1, 10);
 
@@ -118,7 +119,7 @@ public class RelationshipService {
         };
 
         //조회결과가 빈 리스트일 시 예외처리
-        if (foundRel.isEmpty()){throw new ResponseStatusException(HttpStatus.NOT_FOUND, "조회된 결과가 없습니다.");}
+        if (foundRel.isEmpty()){throw new CustomException(Errors.RELATION_NOT_FOUND);}
 
         return foundRel.stream().map(RelationshipResponseDto::new).toList();
     }
@@ -126,7 +127,7 @@ public class RelationshipService {
     //해당 유저의 모든 친구를 User 리스트 형태로 반환
     //친구는 요청을 승인한 유저만 포함.
     public List<User> findAllFriends(User user){
-        List<Relationship> relationshipList = relationshipRepository.findAllByFollowerAndPendingIsFalseOrFollowingAndPendingIsFalse(user, user).orElseThrow();
+        List<Relationship> relationshipList = relationshipRepository.findAllByFollowerAndPendingIsFalseOrFollowingAndPendingIsFalse(user, user).orElseThrow(()-> new CustomException(Errors.RELATION_NOT_FOUND));
         List<User> friends = new ArrayList<>();
         for (Relationship r : relationshipList){
             if(!r.getFollower().equals(user)){friends.add(r.getFollower());}
