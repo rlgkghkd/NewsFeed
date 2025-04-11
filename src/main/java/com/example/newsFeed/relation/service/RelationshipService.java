@@ -9,6 +9,7 @@ import com.example.newsFeed.users.entity.User;
 import com.example.newsFeed.users.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.Token;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -24,11 +25,12 @@ import java.util.List;
 public class RelationshipService {
     private final RelationshipRepository relationshipRepository;
     private final UserRepository userRepository;
+    private final TokenUtils tokenUtils;
 
     //친구요청 생성
     public RelationshipResponseDto sendRequest(String followingEmail, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //본인
         User follower = userRepository.findById(requestId).orElseThrow();
@@ -52,8 +54,8 @@ public class RelationshipService {
     //요청 상태는 pending으로 판단. true일 시 응답이 필요한 요청, false일 시 이미 승인된 요청.
     @Transactional
     public void responseRelationship(Long followerId, boolean response, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //요청을 보낸 유저
         User follower = userRepository.findById(followerId).orElseThrow();
@@ -77,8 +79,8 @@ public class RelationshipService {
     //승인, 미승인 된 요청 모두 삭제 가능
     @Transactional
     public void deleteRelationship(Long otherId, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //본인
         User me = userRepository.findById(requestId).orElseThrow();
@@ -96,8 +98,8 @@ public class RelationshipService {
     //본인과 관련된 요청만 조회 가능.
     //전달받은 type 파라미터에 따라 다른 동작
     public List<RelationshipResponseDto> findRelationship(String type, HttpServletRequest request, int index) {
-        String token = TokenUtils.getAccessToken(request);
-        Long requestId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long requestId = tokenUtils.getUserIdFromToken(token);
 
         //본인
         User userFoundById = userRepository.findById(requestId).orElseThrow();
