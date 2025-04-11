@@ -33,7 +33,7 @@ public class BoardLikeService {
     @Transactional
     public BoardLikeResponseDto leaveLike(Long boardId, HttpServletRequest request) {
         String token = tokenUtils.getAccessToken(request);
-        Board board = boardRepository.findById(boardId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Board board = boardRepository.findById(boardId).orElseThrow(()-> new CustomException(Errors.BOARD_NOT_FOUND));
         User user = userRepository.findByIdOrElseThrow(tokenUtils.getUserIdFromToken(token));
 
 
@@ -44,7 +44,7 @@ public class BoardLikeService {
         BoardLike saved = likesRepository.save(boardLike);
         
         //게시물 객체의 좋아요 필드 수정.
-        board.setLikesCount((long)likesRepository.findAllByBoard(board).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND)).size());
+        board.setLikesCount((long)likesRepository.findAllByBoard(board).orElseThrow(()-> new CustomException(Errors.BOARD_NOT_FOUND)).size());
         return new BoardLikeResponseDto(saved);
     }
 
@@ -54,10 +54,10 @@ public class BoardLikeService {
     public void deleteLike(Long boardId, HttpServletRequest request){
         String token = tokenUtils.getAccessToken(request);
         User user = userRepository.findByIdOrElseThrow(tokenUtils.getUserIdFromToken(token));
-        Board board = boardRepository.findById(boardId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Board board = boardRepository.findById(boardId).orElseThrow(()-> new CustomException(Errors.BOARD_NOT_FOUND));
         BoardLike target = likesRepository.findByBoardAndUser(board, user).orElseThrow(()->new CustomException(Errors.Likes_NOT_FOUND));
 
         likesRepository.delete(target);
-        board.setLikesCount((long)likesRepository.findAllByBoard(board).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND)).size());
+        board.setLikesCount((long)likesRepository.findAllByBoard(board).orElseThrow(()-> new CustomException(Errors.BOARD_NOT_FOUND)).size());
     }
 }

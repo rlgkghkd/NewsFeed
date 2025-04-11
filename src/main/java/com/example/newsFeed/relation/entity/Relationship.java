@@ -22,6 +22,7 @@ public class Relationship {
     @JoinColumn(name = "follower_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User follower;
+
     @MapsId("followingId")
     @ManyToOne()
     @JoinColumn(name = "following_id")

@@ -33,7 +33,7 @@ public class CommentLikeService {
     @Transactional
     public CommentLikeResponseDto leaveLike(Long commentId, HttpServletRequest request) {
         String token = tokenUtils.getAccessToken(request);
-        Comment comment = commentRepository.findById(commentId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CustomException(Errors.COMMENT_NOT_FOUND));
         User user = userRepository.findByIdOrElseThrow(tokenUtils.getUserIdFromToken(token));
 
 
@@ -44,7 +44,7 @@ public class CommentLikeService {
         CommentLike saved = commentLikeRepository.save(commentLike);
         
         //게시물 객체의 좋아요 필드 수정.
-        comment.setLikes((long)commentLikeRepository.findAllByComment(comment).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND)).size());
+        comment.setLikes((long)commentLikeRepository.findAllByComment(comment).orElseThrow(()-> new CustomException(Errors.COMMENT_NOT_FOUND)).size());
         return new CommentLikeResponseDto(saved);
     }
 
@@ -54,10 +54,10 @@ public class CommentLikeService {
     public void deleteLike(Long boardId, HttpServletRequest request){
         String token = tokenUtils.getAccessToken(request);
         User user = userRepository.findByIdOrElseThrow(tokenUtils.getUserIdFromToken(token));
-        Comment comment = commentRepository.findById(boardId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Comment comment = commentRepository.findById(boardId).orElseThrow(()-> new CustomException(Errors.COMMENT_NOT_FOUND));
         CommentLike target = commentLikeRepository.findByCommentAndUser(comment, user).orElseThrow(()->new CustomException(Errors.Likes_NOT_FOUND));
 
         commentLikeRepository.delete(target);
-        comment.setLikes((long)commentLikeRepository.findAllByComment(comment).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND)).size());
+        comment.setLikes((long)commentLikeRepository.findAllByComment(comment).orElseThrow(()-> new CustomException(Errors.COMMENT_NOT_FOUND)).size());
     }
 }
