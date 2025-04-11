@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.PatternMatchUtils;
 import java.io.IOException;
+import java.util.Optional;
 
 public class JwtFilter implements Filter {
 
@@ -39,56 +40,71 @@ public class JwtFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String requestURI = request.getRequestURI();
 
-        // 화이트리스트가 아닌 경우에만 토큰 검증 로직 실행
-        if (!isWhiteList(requestURI)) {
+        // 화이트리스트 경로는 토큰 검증 없이 바로 통과
+        if (isWhiteList(requestURI)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
 
-            // getAccessToken 메서드 내부에서 쿠키,accessToken의 null검증 처리가 되어있다.
-            String accessToken = tokenUtils.getAccessToken(request);
+        // accessToken 쿠키에서 추출 (null일 수 있음)
+        String accessToken = tokenUtils.getAccessTokenOrNull(request);
 
+        // accessToken이 존재하고 유효한 경우 → 그대로 다음 필터 진행
+        if (accessToken != null) {
             try {
-                // accessToken 유효성 검증
                 tokenUtils.validateTokenOrThrow(accessToken);
+                filterChain.doFilter(servletRequest, servletResponse);
+                return;
 
-                // accessToken 만료 → refreshToken으로 재발급 시도
             } catch (ExpiredJwtException e) {
-
-                // getRefreshToken 메서드 내부에서 쿠키,refreshToken의 null검증 처리가 되어있다.
-                String refreshToken = tokenUtils.getRefreshToken(request);
-
-                try {
-                    // refreshToken 유효성 검증
-                    tokenUtils.validateTokenOrThrow(refreshToken);
-
-                    // refreshToken으로 Db에서 UserToken 찾은 후 userId를 추출
-                    Long userId = userTokenService.findUserIdByRefreshToken(refreshToken);
-
-                    // 추출된 userId로 재발급용 accessToken을 생성
-                    String newAccessToken = tokenUtils.createAccessToken(userId);
-
-                    // access토큰을 쿠키에 담아 HttpServletResponse Header에 재발급
-                    tokenUtils.refreshAccessTokenCookie(response, newAccessToken);
-
-                    // refreshToken이 만료가 된 경우 Db의 UserToken를 삭제하고 재로그인 요구 응답
-                } catch (ExpiredJwtException ex) {
-                    userTokenService.deleteUserTokenByRefreshToken(refreshToken);
-                    handleTokenException(response, ex, "RefreshToken");
-                    return;
-
-                    // 만료 이외의 refreshToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
-                } catch (Exception ex) {
-                    handleTokenException(response, ex, "RefreshToken");
-                    return;
-                }
-
-                // 만료 이외의 accessToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
-            } catch (Exception ex) {
-                handleTokenException(response, ex, "AccessToken");
+                // accessToken이 만료되었을 경우 → refreshToken으로 재발급 시도 (아래에서 처리)
+            } catch (Exception e) {
+                // accessToken이 만료 외의 문제로 유효하지 않으면 → 바로 에러 응답
+                handleTokenException(response, e, "AccessToken");
                 return;
             }
         }
 
-        // 다음 Filter가 없으므로 dispatcher Servlet을 호출
-        filterChain.doFilter(servletRequest, servletResponse);
+        // accessToken이 없거나 만료되었을 경우 → refreshToken 처리
+        // 책임을 분리하기 위해서 refreshToken 유효성 검증 부분과 try-catch를 나누었다.
+        // 분기별로 다른 로직을 확장할 여지 또한 남기기 위함도 있다.
+        try {
+            // refreshToken이 존재하지 않거나 쿠키가 없을 경우 여기서 예외 발생 → 재로그인 요구
+            String refreshToken = tokenUtils.getRefreshToken(request);
+
+            try {
+                // refreshToken 유효성 검증
+                tokenUtils.validateTokenOrThrow(refreshToken);
+
+                // DB에서 userId 조회
+                Long userId = userTokenService.findUserIdByRefreshToken(refreshToken);
+
+                // accessToken 재발급
+                String newAccessToken = tokenUtils.createAccessToken(userId);
+
+                // 재발급된 accessToken을 쿠키에 담아 응답
+                tokenUtils.refreshAccessTokenCookie(response, newAccessToken);
+
+                // 재발급 후 다음 필터로 넘김
+                filterChain.doFilter(servletRequest, servletResponse);
+                return;
+
+            } catch (ExpiredJwtException ex) {
+                // refreshToken이 만료되었을 경우 → DB에서 토큰 삭제 + 재로그인 요구
+                userTokenService.deleteUserTokenByRefreshToken(refreshToken);
+                handleTokenException(response, ex, "RefreshToken");
+                return;
+
+            } catch (Exception ex) {
+                // refreshToken에 대해 다른 문제가 발생한 경우 → 예외 응답
+                handleTokenException(response, ex, "RefreshToken");
+                return;
+            }
+
+        } catch (Exception e) {
+            // refreshToken 자체가 없거나 쿠키가 없어서 예외가 발생한 경우
+            handleTokenException(response, e, "RefreshToken");
+        }
     }
 
     // Jwts예외를 공통적으로 처리하여 메시지 전송
