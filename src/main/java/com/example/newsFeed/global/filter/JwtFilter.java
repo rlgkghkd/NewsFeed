@@ -1,31 +1,38 @@
 package com.example.newsFeed.global.filter;
 
+import com.example.newsFeed.global.exception.ErrorResponseDto;
+import com.example.newsFeed.global.exception.Errors;
+import com.example.newsFeed.jwt.service.TokenRedisService;
 import com.example.newsFeed.jwt.utils.TokenUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import jakarta.servlet.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.dao.DataAccessException;
-import org.springframework.http.ResponseCookie;
 import org.springframework.util.PatternMatchUtils;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
+
+import static com.example.newsFeed.jwt.utils.TokenUtils.getAccessToken;
+import static com.example.newsFeed.jwt.utils.TokenUtils.getRefreshToken;
 
 public class JwtFilter implements Filter {
 
+    // 로그인 없이 접근할 수 있는 URL 목록
     private static final String[] WHITE_LIST = {
             "/users",
             "/api/login"
     };
 
+    // TokenUtils 클래스 의존성 주입
     private final TokenUtils tokenUtils;
 
-    public JwtFilter(TokenUtils tokenUtils) {
+    private final TokenRedisService tokenRedisService;
+
+    // TokenUtils 클래스 의존성 주입을 위한 생성자 autoWired X
+    public JwtFilter(TokenUtils tokenUtils, TokenRedisService tokenRedisService) {
         this.tokenUtils = tokenUtils;
+        this.tokenRedisService = tokenRedisService;
     }
 
     @Override
@@ -36,86 +43,95 @@ public class JwtFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String requestURI = request.getRequestURI();
 
-        if (!isWhiteList(requestURI)) {
-            Cookie[] cookies = request.getCookies();
-            String accessToken = extractTokenFromCookies(cookies, "accessToken");
+        // 화이트리스트는 인증 없이 통과
+        if (isWhiteList(requestURI)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+        String accessToken = getAccessToken(request);
 
-            if (accessToken == null) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "AccessToken이 존재하지 않습니다.");
+        // accessToken null 검증
+        if (accessToken == null) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "AccessToken이 존재하지 않습니다.");
+            return;
+        }
+        try {
+            // accessToken 유효성 검증
+            tokenUtils.validateTokenOrThrow(accessToken);
+
+            // accessToken 만료 → refreshToken으로 재발급 시도
+        } catch (ExpiredJwtException e) {
+            String refreshToken = getRefreshToken(request);
+
+            // refreshToken null 검증
+            if (refreshToken == null) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 존재하지 않습니다.");
                 return;
             }
-
             try {
-                // 액세스 토큰 검증
-                tokenUtils.validateTokenOrThrow(accessToken);
+                //refreshToken 유효성 검증
+                tokenUtils.validateTokenOrThrow(refreshToken);
 
-            } catch (ExpiredJwtException e) {
-                // 액세스 토큰이 만료된 경우, 리프레시 토큰을 이용해 재발급 시도
-                String refreshToken = extractTokenFromCookies(cookies, "refreshToken");
+                //refreshToken으로 Db에서 TokenRedis를 찾은 후 userId를 추출
+                Long userId = tokenRedisService.findUserIdByRefreshToken(refreshToken);
 
-                if (refreshToken == null) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 존재하지 않습니다.");
-                    return;
-                }
+                // 추출된 userId로 재발급용 accessToken을 생성
+                String newAccessToken = tokenUtils.createAccessToken(userId);
 
-                try {
-                    tokenUtils.validateTokenOrThrow(refreshToken);
-                    // Db에 있는 TokenRedis를 찾은 후 accessToken 재발급
-                    Long userId = tokenUtils.findUserIdByRefreshToken(refreshToken);
-                    String newAccessToken = tokenUtils.createAccessToken(userId);
+                // access토큰을 쿠키에 담아 HttpServletResponse Header에 재발급
+                tokenUtils.refreshAccessTokenCookie(response, newAccessToken);
 
-                        ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
-                                .httpOnly(true)
-                                .secure(true)
-                                .path("/")
-                                .maxAge(Duration.ofMinutes(3))
-                                .sameSite("Strict")
-                                .build();
-                        response.addHeader("Set-Cookie", newAccessToken);
-
-
-                } catch (ExpiredJwtException ex) {
-                    tokenUtils.deleteTokenRedis(refreshToken);
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 만료되었습니다.");
-                    return;
-                } catch (JwtException | IllegalArgumentException ex) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "유효하지 않은 RefreshToken입니다.");
-                    return;
-                } catch (DataAccessException ex) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Redis 데이터 접근 실패.");
-                    return;
-                } catch (NoSuchElementException ex) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "해당 RefreshToken 값이 Redis에 없습니다.");
-                    return;
-                }
-
-            } catch (SecurityException | MalformedJwtException ex) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "잘못된 JWT 서명입니다.");
+                // refreshToken이 만료가 된 경우 Db의 TokenRedis를 삭제하고 재로그인 요구 응답
+            } catch (ExpiredJwtException ex) {
+                tokenRedisService.deleteTokenRedisByFresh(refreshToken);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 만료되었습니다. 다시 로그인 해주세요.");
                 return;
-            } catch (UnsupportedJwtException ex) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "지원하지 않는 JWT입니다.");
-                return;
-            } catch (IllegalArgumentException ex) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "토큰 형식이 올바르지 않습니다.");
+
+                // 만료 이외의 refreshToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
+            } catch (Exception ex) {
+                handleTokenException(response, ex, "RefreshToken");
                 return;
             }
+
+            // 만료 이외의 accessToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
+        } catch (Exception ex) {
+            handleTokenException(response, ex, "AccessToken");
+            return;
         }
 
-        // 화이트리스트거나 인증 절차 통과 시 다음 필터로
+        // 다음 Filter가 없으므로 dispatcher Servlet을 호출
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private boolean isWhiteList(String requestURI) {
-        return PatternMatchUtils.simpleMatch(WHITE_LIST, requestURI);
+    // Jwts예외를 공통적으로 처리하여 메시지 전송
+    private void handleTokenException(HttpServletResponse response, Exception ex, String tokenType) throws IOException {
+        Errors error = Errors.fromException(ex);
+
+        // 커스터마이즈된 메시지 (선택)
+        String message = tokenType + ": " + error.getMessage();
+
+        makeErrorResponseToJason(response, error, message);
     }
 
-    private String extractTokenFromCookies(Cookie[] cookies, String tokenName) {
-        if (cookies == null) return null;
+    private void makeErrorResponseToJason(HttpServletResponse response, Errors error, String errorMessage) throws IOException {
 
-        return Arrays.stream(cookies)
-                .filter(cookie -> tokenName.equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+        // ErrorResponseDto 생성
+        ErrorResponseDto errorResponse = ErrorResponseDto.of(error, errorMessage);
+
+        // JSON 응답 세팅
+        response.setStatus(error.getStatus());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // Jackson ObjectMapper를 이용해 JSON 문자열로 변환
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(errorResponse);
+
+        response.getWriter().write(json);
+    }
+
+    // 요청 URI가 화이트리스트에 포함되어 있는지 확인
+    private boolean isWhiteList(String requestURI) {
+        return PatternMatchUtils.simpleMatch(WHITE_LIST, requestURI);
     }
 }
