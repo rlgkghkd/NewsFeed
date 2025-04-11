@@ -17,8 +17,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,8 +81,10 @@ public class BoardService {
     }
 
     //Upgrade 뉴스피드
-    public List<BoardResponseDto> getUpgradeFeed(String sorting, LocalDate fromDate, LocalDate toDate)
-    {
+    public List<BoardResponseDto> getUpgradeFeed(String sorting, String fromDate, String toDate) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        LocalDateTime from = format.parse(fromDate).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime to = format.parse(toDate).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         List<Board> boardList = boardRepository.findAll(sort);
 
         if(boardList.size()==0)
@@ -92,8 +97,8 @@ public class BoardService {
                 .collect(Collectors.toList());
 
         //날짜 범위 지정
-        if (fromDate != null){result = result.stream().filter(d->d.getModifiedAt().isAfter(fromDate.atStartOfDay())).toList();}
-        if (toDate != null){result = result.stream().filter(d->d.getModifiedAt().isBefore(toDate.atStartOfDay())).toList();}
+        if (fromDate != null){result = result.stream().filter(d->d.getModifiedAt().isAfter(from)).toList();}
+        if (toDate != null){result = result.stream().filter(d->d.getModifiedAt().isBefore(to)).toList();}
 
         //좋아요, 날짜 역순 정렬
         result = switch (sorting){
