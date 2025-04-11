@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final TokenUtils tokenUtils;
 
     //회원가입
     @PostMapping()
@@ -43,8 +44,8 @@ public class UserController {
             @RequestBody UserUpdateRequestDto updateDto,
             HttpServletRequest request
     ) {
-        String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
-        Long userId = TokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
+        String token = tokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
+        Long userId = tokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
         UserResponseDto responseDto = userService.updateUserInfo(userId, updateDto);
         return ResponseEntity.ok(responseDto);
     }
@@ -55,8 +56,8 @@ public class UserController {
             @RequestBody UserPasswordRequestDto passwordDto,
             HttpServletRequest request
     ) {
-        String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
-        Long userId = TokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
+        String token = tokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
+        Long userId = tokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
         userService.updateUserPassword(userId, passwordDto);
         return ResponseEntity.ok().body("비밀번호가 변경되었습니다.");
     }
@@ -67,8 +68,8 @@ public class UserController {
             @RequestBody UserDeleteRequestDto deleteDto,
             HttpServletRequest request
     ) {
-        String token = TokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
-        Long userId = TokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
+        String token = tokenUtils.getAccessToken(request); // 쿠키에서 accessToken 꺼내기
+        Long userId = tokenUtils.getUserIdFromToken(token); // 토큰에서 userId 추출
         userService.resignUser(userId, deleteDto);
         return ResponseEntity.ok().body("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
     }
