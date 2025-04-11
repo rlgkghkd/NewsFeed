@@ -2,24 +2,23 @@ package com.example.newsFeed.jwt.utils;
 
 import com.example.newsFeed.global.exception.CustomException;
 import com.example.newsFeed.global.exception.Errors;
-import com.example.newsFeed.jwt.repository.TokenRedisRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 public class TokenUtils {
-
-    TokenRedisRepository tokenRedisRepository;
 
     private static final String jwtSecretKey = "thisIsASecretKeyUsedForJwtTokenGenerationAndItIsLongEnoughToMeetTheRequirementOf256Bits";
     private static final SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
@@ -66,21 +65,31 @@ public class TokenUtils {
         }
     }
 
+    //HttpServletRequest에서 accessToken을 가져오는 메서드
     public static String getAccessToken(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
+        return  getTokenWithVerification(request, "accessToken");
+    }
+    //HttpServletRequest에서 refreshToken을 가져오는 메서드
+    public static String getRefreshToken(HttpServletRequest request) {
+        return getTokenWithVerification(request, "refreshToken");
+    }
+    //HttpServletRequest에서 매개 타입별 Token을 가져오는 메서드
+public static String getTokenWithVerification(HttpServletRequest request, String tokenType) {
+    Cookie[] cookies = request.getCookies();
 
-        if (cookies == null) {
-            throw new CustomException(Errors.UNAUTHORIZED_ACCESS, "다시 로그인해주세요");
-        }
-
-        return Arrays.stream(cookies)
-                .filter(cookie -> "accessToken".equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElseThrow(() -> new CustomException(Errors.UNAUTHORIZED_ACCESS, "accessToken 쿠키가 존재하지 않습니다. 재요청해주세요!"));
+    if (cookies == null) {
+        throw new CustomException(Errors.UNAUTHORIZED_ACCESS, "다시 로그인해주세요");
     }
 
-    // 만료일이 현재 날짜 이전인 경우 Jwt예외를 throws 한다.
+    return Arrays.stream(cookies)
+            .filter(cookie -> tokenType.equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findFirst()
+            .orElseThrow(() -> new CustomException(Errors.UNAUTHORIZED_ACCESS, tokenType + " 쿠키가 존재하지 않습니다. 재요청해주세요!"));
+}
+
+    // 만료일이 현재 날짜 이전인 경우 ExpiredJwtException 예외를 throws 한다.
+    // 그 외 Jwt예외들 throw 한다.
     public void validateTokenOrThrow(String token) throws JwtException {
         Jws<Claims> claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
 
@@ -89,15 +98,14 @@ public class TokenUtils {
         }
     }
 
-    // 예외들 enum 추가 필요
-    public Long findUserIdByRefreshToken(String refreshToken)
-            throws DataAccessException {
-        return tokenRedisRepository.findTokenRedisByRefreshTokenOrElseThrow(refreshToken).getUserId();
+    public void refreshAccessTokenCookie(HttpServletResponse response, String token) {
+        ResponseCookie cookie = ResponseCookie.from("accessToken", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofMinutes(3))
+                .sameSite("Strict")
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
     }
-
-    // Redis에 저장된 Refresh Token 삭제
-    public void deleteTokenRedis(String refreshToken) {
-        tokenRedisRepository.deleteByRefreshToken(refreshToken);
-    }
-
 }
