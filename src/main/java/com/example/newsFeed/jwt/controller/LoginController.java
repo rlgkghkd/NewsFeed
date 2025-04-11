@@ -8,7 +8,6 @@ import com.example.newsFeed.users.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,7 @@ import java.time.Duration;
 
 @RequiredArgsConstructor
 @RestController
-public class Controller {
+public class LoginController {
 
     private final TokenUtils tokenUtils;
     private final UserService userService;
@@ -62,7 +61,7 @@ public class Controller {
 
     @DeleteMapping("/api/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        tokenRedisService.deleteTokenRedisInDb(request);
+        tokenRedisService.deleteTokenById(request);
 
         // 쿠키 삭제
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", "")
