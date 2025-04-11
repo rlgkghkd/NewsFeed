@@ -95,6 +95,7 @@ public class TokenUtils {
         Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
     }
 
+    // accessToken을 재발급하는 메서드
     public void refreshAccessTokenCookie(HttpServletResponse response, String token) {
         ResponseCookie cookie = ResponseCookie.from("accessToken", token)
                 .httpOnly(true)
@@ -106,7 +107,8 @@ public class TokenUtils {
         response.addHeader("Set-Cookie", cookie.toString());
     }
 
-    private ResponseCookie deleteCookie(String token){
+    // 쿠키의 maxAge(0) 값을 넣어 초기화용 쿠키를 반환
+    private ResponseCookie buildZeroCookie(String token){
         return ResponseCookie.from(token, "")
                 .httpOnly(true)
                 .secure(true)
@@ -117,10 +119,10 @@ public class TokenUtils {
     }
 
     public ResponseCookie deleteAccessCookie(){
-        return deleteCookie("accessToken");
+        return buildZeroCookie("accessToken");
     }
 
     public ResponseCookie deleteRefreshCookie(){
-        return deleteCookie("refreshToken");
+        return buildZeroCookie("refreshToken");
     }
 }
