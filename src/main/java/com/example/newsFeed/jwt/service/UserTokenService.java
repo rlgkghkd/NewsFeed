@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -16,12 +17,14 @@ public class UserTokenService {
     private final TokenUtils tokenUtils;
 
     //주어진 userId와 refreshToken을 기반으로 UserToken 엔티티를 생성하고 DB에 저장
+    @Transactional
     public void saveRefreshInDb(Long userId, String refreshToken) {
         UserToken userToken = UserToken.toEntity(userId, refreshToken);
         userTokenRepository.save(userToken);
     }
 
     //요청에서 accessToken을 꺼내고, 토큰에서 추출한 userId를 기반으로 DB에서 해당 유저의 토큰을 삭제
+    @Transactional
     public void deleteTokenById(HttpServletRequest request) {
         String accessToken = tokenUtils.getAccessToken(request);
         Long id = tokenUtils.getUserIdFromToken(accessToken);
@@ -40,6 +43,7 @@ public class UserTokenService {
      // refreshToken 만료 또는 재로그인 유도 시 사용
      // throws DataAccessException DB 조회 또는 삭제 중 오류 발생 가능
      // Db에 저장된 Refresh Token 삭제
+    @Transactional
     public void deleteUserTokenByRefreshToken(String refreshToken)throws DataAccessException {
         UserToken token = userTokenRepository.findUserTokenByRefreshTokenOrElseThrow(refreshToken);
         userTokenRepository.delete(token);
