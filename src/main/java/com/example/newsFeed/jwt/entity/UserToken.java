@@ -1,6 +1,5 @@
 package com.example.newsFeed.jwt.entity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class TokenRedis {
+public class UserToken {
 
     @Id
     private Long userId;
@@ -16,13 +15,13 @@ public class TokenRedis {
     @Column(unique = true, nullable = false)
     private String refreshToken;
 
-    public TokenRedis (Long userId, String refreshToken){
+    public UserToken(Long userId, String refreshToken){
         this.userId = userId;
         this.refreshToken = refreshToken;
     }
 
-    public static TokenRedis toEntity(Long userId, String refreshToken){
+    public static UserToken toEntity(Long userId, String refreshToken){
 
-        return new TokenRedis(userId, refreshToken);
+        return new UserToken(userId, refreshToken);
     }
 }
