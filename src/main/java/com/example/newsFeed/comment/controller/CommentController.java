@@ -48,10 +48,10 @@ public class CommentController {
 
     //Comment 삭제
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, HttpServletRequest request) {
+    public ResponseEntity<String> deleteComment(@PathVariable Long boardId, @PathVariable Long commentId, HttpServletRequest request) {
         String token = tokenUtils.getAccessToken(request);
         Long userId = tokenUtils.getUserIdFromToken(token);
-        commentService.deleteComment(commentId, userId);
+        commentService.deleteComment(commentId, boardId, userId);
         return ResponseEntity.ok("삭제완료");
     }
 }
