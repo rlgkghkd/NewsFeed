@@ -84,7 +84,7 @@ public class BoardService {
 
         if(boardList.size()==0)
         {
-            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+            throw new CustomException(Errors.BOARD_NOT_FOUND);
         }
 
         List<BoardResponseDto> result = boardList.stream()
