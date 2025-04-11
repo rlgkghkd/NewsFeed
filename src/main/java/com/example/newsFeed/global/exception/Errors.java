@@ -18,6 +18,7 @@ public enum Errors {
     ENTITY_NOT_FOUND(400, "Bad Request", "C003", "Entity Not Found"),
     INTERNAL_SERVER_ERROR(500, "Server Error", "C004", "Internal Server Error"),
     INVALID_TYPE_VALUE(400, "Bad Request", "C005", "Invalid Type Value"),
+    DB_ERROR(500, "Internal Server Error", "D001", "DB 접근 중 문제가 발생했습니다."),
 
     // User
     EMAIL_DUPLICATION(400, "Bad Request", "U001", "Email is Duplicated"),
@@ -42,9 +43,7 @@ public enum Errors {
     JWT_UNSUPPORTED(403, "Forbidden", "J003", "지원하지 않는 형식의 JWT입니다."),
     JWT_ILLEGAL(403, "Forbidden", "J004", "JWT 형식이 올바르지 않습니다."),
     JWT_INVALID(403, "Forbidden", "J005", "유효하지 않은 JWT입니다."),
-    JWT_EXPIRED(403, "Forbidden", "J006", "JWT가 만료되었습니다."),
-    // Db
-    DB_ERROR(500, "Internal Server Error", "D001", "DB 접근 중 문제가 발생했습니다.");
+    REFRESH_TOKEN_EXPIRED(403, "Forbidden", "J006", "JWT가 만료되었습니다. 재로그인 해주세요.");
 
     private final int status;
     private final String error;
@@ -59,10 +58,9 @@ public enum Errors {
         if (e instanceof MalformedJwtException) return JWT_MALFORMED;
         if (e instanceof UnsupportedJwtException) return JWT_UNSUPPORTED;
         if (e instanceof IllegalArgumentException) return JWT_ILLEGAL;
-        if (e instanceof ExpiredJwtException) return JWT_EXPIRED;
+        if (e instanceof ExpiredJwtException) return REFRESH_TOKEN_EXPIRED;
         if (e instanceof JwtException) return JWT_INVALID;
         if (e instanceof DataAccessException) return DB_ERROR;
         return JWT_UNKNOWN; // 기본값
     }
-
 }
