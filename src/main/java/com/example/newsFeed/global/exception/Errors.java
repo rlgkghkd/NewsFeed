@@ -24,7 +24,7 @@ public enum Errors {
     EMAIL_DUPLICATION(400, "Bad Request", "U001", "Email is Duplicated"),
     USER_NOT_FOUND(404, "Not Found", "U002", "User Not Found"),
     INVALID_PASSWORD(400, "Bad Request", "U003", "Invalid Password"),
-    UNAUTHORIZED_ACCESS(400, "Bad Request", "U004", "Unauthorized Access"),
+    UNAUTHORIZED_ACCESS(401, "Unauthorized", "U004", "Unauthorized Access"),
 
     // Board
     BOARD_NOT_FOUND(404, "Not Found", "B001", "게시글이 존재하지 않습니다."),
@@ -64,6 +64,9 @@ public enum Errors {
      * 예외 타입에 따라 대응하는 Errors enum 반환
      */
     public static Errors fromException(Exception e) {
+        if (e instanceof CustomException) {
+            return ((CustomException)e).getErrors();
+        }
         if (e instanceof SecurityException) return JWT_SIGNATURE_INVALID;
         if (e instanceof MalformedJwtException) return JWT_MALFORMED;
         if (e instanceof UnsupportedJwtException) return JWT_UNSUPPORTED;
