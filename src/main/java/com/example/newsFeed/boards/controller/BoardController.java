@@ -5,11 +5,13 @@ import com.example.newsFeed.boards.dto.BoardListResponseDto;
 import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.boards.dto.BoardResponseDto;
 import com.example.newsFeed.jwt.utils.TokenUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -29,57 +31,62 @@ public class BoardController {
 
     //전체조회
     @GetMapping
-    public List<BoardResponseDto> getBoardAll(){
+    public List<BoardResponseDto> getBoardAll() {
         return boardService.getBoardAll();
     }
 
     //단건조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable long boardId){
+    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable Long boardId) {
         BoardResponseDto dto = boardService.getBoardById(boardId);
         return ResponseEntity.ok(dto);
     }
 
     //뉴스피드 조회
     @GetMapping("/page/{pageNumber}")
-    public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size)
-    {
+    public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size) {
         return boardService.getBoardPage(pageNumber,size);
+    }
+
+    //업그레이드 뉴스피드 조회
+    @GetMapping("/{fromDate}/{toDate}")
+    public List<BoardResponseDto> getUpgradeFeed(@RequestParam(required = false) LocalDate fromDate,
+                                               @RequestParam(required = false) LocalDate toDate,
+                                               @RequestParam(required = false, defaultValue = "") String sorting) {
+        return boardService.getUpgradeFeed(sorting, fromDate, toDate);
     }
 
     //findAllFriends
     @GetMapping("/followFeed")
-    public List<BoardResponseDto> getFollowFeedBoardAll(@CookieValue(name = "accessToken", required = false) String token){
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    public List<BoardResponseDto> getFollowFeedBoardAll(HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         return boardService.getFollowFeedBoardAll(userId);
     }
 
     //추가
     @PostMapping
-    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto,
-                                                        @CookieValue(name = "accessToken", required = false) String token)
-    {
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.createBoard(boardRequestDto, userId);
         return ResponseEntity.ok(dto);
     }
 
     //수정
-    @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable long boardId, @RequestBody BoardRequestDto boardRequestDto
-            , @CookieValue(name = "accessToken", required = false) String token)
-    {
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    @PutMapping("/{boardId}")
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.updateBoard(boardRequestDto, boardId, userId);
         return ResponseEntity.ok(dto);
     }
 
     //삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deleteBoard(@PathVariable long boardId
-            , @CookieValue(name = "accessToken", required = false) String token)
-    {
-        Long userId = tokenUtils.getUserIdFromToken(token);
+    public ResponseEntity<String> deleteBoard(@PathVariable Long boardId, HttpServletRequest request) {
+        String token = TokenUtils.getAccessToken(request);
+        Long userId = TokenUtils.getUserIdFromToken(token);
         boardService.deleteBoard(boardId, userId);
         return ResponseEntity.ok("삭제완료");
     }

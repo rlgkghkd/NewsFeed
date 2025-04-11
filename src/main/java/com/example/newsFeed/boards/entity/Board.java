@@ -3,13 +3,12 @@ package com.example.newsFeed.boards.entity;
 import com.example.newsFeed.boards.dto.BoardRequestDto;
 import com.example.newsFeed.entity.Base;
 import com.example.newsFeed.users.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -26,6 +25,10 @@ public class Board extends Base {
 
     private String title;
     private String contents;
+
+    @ColumnDefault("0")
+    @Setter
+    private Long likesCount = 0L;
 
     public void update(BoardRequestDto dto) {
         this.title = dto.getTitle();

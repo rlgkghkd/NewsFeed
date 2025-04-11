@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     //유저 아이디에 따른 게시물 개수 반환
-    Long countByUser_Id(Long userId);
+    Long countByUserId(Long userId);
 
     List<Board> findByUserInOrderByCreatedAtDesc(List<User> users);
 }
