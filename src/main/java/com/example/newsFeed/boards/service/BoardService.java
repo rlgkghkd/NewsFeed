@@ -30,10 +30,11 @@ public class BoardService {
     private final UserService userService;
     private final RelationshipService relationshipService;
 
+    //생성일자 기준 정렬
     Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 
+    //Board 전체 조회
     public List<BoardResponseDto> getBoardAll(){
-        //기본 정렬은 생성일자 기준으로 내림차순 정렬
 
         List<Board> result = boardRepository.findAll(sort);
 
@@ -48,17 +49,22 @@ public class BoardService {
         return dto;
     }
 
-    public BoardResponseDto getBoardById(long boardId){
+    //Board 단건 조회
+    public BoardResponseDto getBoardById(Long boardId){
         Board board = checkBoardId(boardId);
         return new BoardResponseDto(board);
     }
 
-    public List<BoardResponseDto> getBoardPage(int page, int size, String sorting, LocalDate fromDate, LocalDate toDate)
+    //Board 페이지 조회 조회
+    public List<BoardResponseDto> getBoardPage(int page, int size)
     {
+        //Page 숫자 안전 코드
         if(page < 1)
         {
             page = 1;
         }
+
+        // 0 부터 시작하므로 -1
         page = page - 1;
         Pageable pageable = PageRequest.of(page,size,sort);
 
@@ -68,6 +74,22 @@ public class BoardService {
                 .map(BoardResponseDto::new)
                 .toList();
 
+        return result;
+    }
+
+    //Upgrade 뉴스피드
+    public List<BoardResponseDto> getUpgradeFeed(String sorting, LocalDate fromDate, LocalDate toDate)
+    {
+        List<Board> boardList = boardRepository.findAll(sort);
+
+        if(boardList.size()==0)
+        {
+            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+        }
+
+        List<BoardResponseDto> result = boardList.stream()
+                .map(BoardResponseDto::new)
+                .collect(Collectors.toList());
 
         //날짜 범위 지정
         if (fromDate != null){result = result.stream().filter(d->d.getModifiedAt().isAfter(fromDate.atStartOfDay())).toList();}
@@ -83,7 +105,8 @@ public class BoardService {
         return result;
     }
 
-    public List<BoardResponseDto> getFollowFeedBoardAll(long userId){
+    //친구 관계인 사람의 뉴스피드 보기
+    public List<BoardResponseDto> getFollowFeedBoardAll(Long userId){
         User user = userService.getUserById(userId);
         List<User> userList =  relationshipService.findAllFriends(user);
         List<Board> result = boardRepository.findByUserInOrderByCreatedAtDesc(userList);
@@ -100,16 +123,17 @@ public class BoardService {
 
     }
 
-    public BoardResponseDto createBoard(BoardRequestDto dto, long userId)
+    // Board 생성
+    public BoardResponseDto createBoard(BoardRequestDto dto, Long userId)
     {
         User user = userService.getUserById(userId);
         Board board = new Board(dto, user);
-        board.setLikesCount((long)0);
         boardRepository.save(board);
         return new BoardResponseDto(board);
     }
 
-    public BoardResponseDto updateBoard(BoardRequestDto dto,long boardId, long userId)
+    // Board Update 생성
+    public BoardResponseDto updateBoard(BoardRequestDto dto,Long boardId, Long userId)
     {
         Board board = checkBoardId(boardId);
         checkBoardIdEqualsLoginId(board,userId);
@@ -117,8 +141,9 @@ public class BoardService {
         boardRepository.save(board);
         return new BoardResponseDto(board);
     }
-    
-    public void deleteBoard(long boardId, long userId)
+
+    // Board 삭제
+    public void deleteBoard(Long boardId, Long userId)
     {
         Board board = checkBoardId(boardId);
         checkBoardIdEqualsLoginId(board,userId);
@@ -131,7 +156,7 @@ public class BoardService {
      ******************************/
 
     //boardId 존재하는지 검사 Board 반환
-    public Board checkBoardId(long boardId){
+    public Board checkBoardId(Long boardId){
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(Errors.SCHEDULE_NOT_FOUND))
                 ;
@@ -139,19 +164,12 @@ public class BoardService {
     }
 
     //Board의 userId와 login userId 검사
-    public void checkBoardIdEqualsLoginId(Board board, long boardId){
+    public void checkBoardIdEqualsLoginId(Board board, Long boardId){
         if(!board.getUser().getId().equals(boardId))
         {
             //Enum 추가해야함 "Board 의 Id와 login Id가 맞지 않는 경우"
             throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
         }
     }
-
-
-
-
-
-
-
 
 }

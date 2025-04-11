@@ -48,7 +48,7 @@ public class UserService {
         if (!user.isEnable()){
             throw new CustomException(Errors.USER_NOT_FOUND, "This user has already been deleted");
         }
-        return UserResponseDto.toDto(user, boardRepository.countByUser_Id(userId), relationshipRepository.countAcceptedFriends(user));
+        return UserResponseDto.toDto(user, boardRepository.countByUserId(userId), relationshipRepository.countAcceptedFriends(user));
     }
 
     //유저 아이디로 유저 Entity 찾아서 반환
@@ -65,7 +65,7 @@ public class UserService {
         user.updateIntroduction(updateDto.getIntroduction());
         //저장
         userRepository.save(user);
-        return UserResponseDto.toDto(user, boardRepository.countByUser_Id(userId), relationshipRepository.countAcceptedFriends(user));
+        return UserResponseDto.toDto(user, boardRepository.countByUserId(userId), relationshipRepository.countAcceptedFriends(user));
     }
 
     public void updateUserPassword(Long id, UserPasswordRequestDto passwordDto) {

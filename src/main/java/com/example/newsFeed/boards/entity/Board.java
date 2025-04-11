@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -25,9 +26,9 @@ public class Board extends Base {
     private String title;
     private String contents;
 
-    //좋아요 개수
+    @ColumnDefault("0")
     @Setter
-    private Long likesCount;
+    private Long likesCount = 0L;
 
     public void update(BoardRequestDto dto) {
         this.title = dto.getTitle();

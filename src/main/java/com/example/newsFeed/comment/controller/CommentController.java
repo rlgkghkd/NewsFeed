@@ -21,23 +21,23 @@ public class CommentController {
 
     //BoardId에 따른 Comment 조회
     @GetMapping
-    public List<CommentResponseDto> getCommentByBoardId(@PathVariable long boardId) {
+    public List<CommentResponseDto> getCommentByBoardId(@PathVariable Long boardId) {
         List<CommentResponseDto> dto = commentService.getCommentByBoardId(boardId);
         return dto;
     }
 
-    //추가
+    //Comment 추가
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@PathVariable long boardId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
+    public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long boardId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
         String token = TokenUtils.getAccessToken(request);
         Long userId = TokenUtils.getUserIdFromToken(token);
         CommentResponseDto dto = commentService.createComment(commentRequestDto, boardId, userId);
         return ResponseEntity.ok(dto);
     }
 
-    //수정
+    //Comment 수정
     @PutMapping("/{commentId}")
-    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable long boardId, @PathVariable long commentId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long boardId, @PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
         String token = TokenUtils.getAccessToken(request);
         Long userId = TokenUtils.getUserIdFromToken(token);
         System.out.println(commentId);
@@ -45,9 +45,9 @@ public class CommentController {
         return ResponseEntity.ok(dto);
     }
 
-    //삭제
+    //Comment 삭제
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable long commentId, HttpServletRequest request) {
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, HttpServletRequest request) {
         String token = TokenUtils.getAccessToken(request);
         Long userId = TokenUtils.getUserIdFromToken(token);
         commentService.deleteComment(commentId, userId);

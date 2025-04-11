@@ -23,8 +23,11 @@ public enum Errors {
     // Board
     SCHEDULE_NOT_FOUND(404, "Not Found", "Board Not Found"),
 
+    // COMMENT
+    COMMENT_NOT_FOUND(404, "Not Found", "Comment Not Found"),
+
     // Follower
-    COMMENT_NOT_FOUND(404, "Not Found", "Follower Not Found");
+    Follower_NOT_FOUND(404, "Not Found", "Follower Not Found");
 
     private final int status;
     private final String error;

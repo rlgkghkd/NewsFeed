@@ -26,16 +26,17 @@ public class CommentService {
     private final BoardService boardService;
     private final UserService userService;
 
+    //생성일자 기준 정렬 Sort
     Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 
 
-    public List<CommentResponseDto> getCommentByBoardId(long boardId) {
-        //기본 정렬은 생성일자 기준으로 내림차순 정렬
+    //Board Id에 따른 Comment 조회
+    public List<CommentResponseDto> getCommentByBoardId(Long boardId) {
 
         List<Comment> result = commentRepository.findByBoardId(boardId, sort);
 
         if (result.size() == 0) {
-            throw new CustomException(Errors.SCHEDULE_NOT_FOUND); //댓글없음으로
+            throw new CustomException(Errors.COMMENT_NOT_FOUND);
         }
 
         List<CommentResponseDto> dto = result.stream()
@@ -44,7 +45,8 @@ public class CommentService {
         return dto;
     }
 
-    public CommentResponseDto createComment(CommentRequestDto dto, long boardId, long userId) {
+    //Comment 생성
+    public CommentResponseDto createComment(CommentRequestDto dto, Long boardId, Long userId) {
         User user = userService.getUserById(userId);
         Board board = boardService.checkBoardId(boardId);
         Comment Comment = new Comment(user, board, dto);
@@ -52,7 +54,8 @@ public class CommentService {
         return new CommentResponseDto(Comment);
     }
 
-    public CommentResponseDto updateComment(CommentRequestDto dto, long commentId, long userId) {
+    //Comment 수정
+    public CommentResponseDto updateComment(CommentRequestDto dto, Long commentId, Long userId) {
         Comment comment = checkCommentId(commentId);
         checkCommentIdEqualsLoginId(comment, userId);
         comment.update(dto);
@@ -60,7 +63,8 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
-    public void deleteComment(long commentId, long userId) {
+    //Comment 삭제
+    public void deleteComment(Long commentId, Long userId) {
         Comment comment = checkCommentId(commentId);
         checkCommentIdEqualsLoginId(comment, userId);
         commentRepository.delete(comment);
@@ -72,16 +76,16 @@ public class CommentService {
      ******************************/
 
     //CommentId 존재하는지 검사 Comment 반환
-    public Comment checkCommentId(long boardId) {
+    public Comment checkCommentId(Long boardId) {
         Comment comment = commentRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(Errors.SCHEDULE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(Errors.COMMENT_NOT_FOUND));
         return comment;
     }
 
     //Comment의 userId와 login userId 검사
-    public void checkCommentIdEqualsLoginId(Comment comment, long boardId) {
+    public void checkCommentIdEqualsLoginId(Comment comment, Long boardId) {
         if (!comment.getUser().getId().equals(boardId)) {
-            throw new CustomException(Errors.SCHEDULE_NOT_FOUND);
+            throw new CustomException(Errors.UNAUTHORIZED_ACCESS);
         }
     }
 

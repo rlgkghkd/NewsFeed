@@ -44,6 +44,6 @@ public class Comment extends Base {
         this.user = user;
         this.board = board;
         this.contents = dto.getContents();
-        this.likes = (long)0;
+        this.likes = 0L;
     }
 }

@@ -37,18 +37,23 @@ public class BoardController {
 
     //단건조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable long boardId) {
+    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable Long boardId) {
         BoardResponseDto dto = boardService.getBoardById(boardId);
         return ResponseEntity.ok(dto);
     }
 
     //뉴스피드 조회
     @GetMapping("/page/{pageNumber}")
-    public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size,
-                                               @RequestParam(required = false) LocalDate fromDate,
+    public List<BoardResponseDto> getBoardPage(@PathVariable int pageNumber, @RequestParam(defaultValue = "10") int size) {
+        return boardService.getBoardPage(pageNumber,size);
+    }
+
+    //업그레이드 뉴스피드 조회
+    @GetMapping("/{fromDate}/{toDate}")
+    public List<BoardResponseDto> getUpgradeFeed(@RequestParam(required = false) LocalDate fromDate,
                                                @RequestParam(required = false) LocalDate toDate,
                                                @RequestParam(required = false, defaultValue = "") String sorting) {
-        return boardService.getBoardPage(pageNumber,size, sorting, fromDate, toDate);
+        return boardService.getUpgradeFeed(sorting, fromDate, toDate);
     }
 
     //findAllFriends
@@ -70,7 +75,7 @@ public class BoardController {
 
     //수정
     @PutMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable long boardId, @RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
         String token = TokenUtils.getAccessToken(request);
         Long userId = TokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.updateBoard(boardRequestDto, boardId, userId);
@@ -79,7 +84,7 @@ public class BoardController {
 
     //삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deleteBoard(@PathVariable long boardId, HttpServletRequest request) {
+    public ResponseEntity<String> deleteBoard(@PathVariable Long boardId, HttpServletRequest request) {
         String token = TokenUtils.getAccessToken(request);
         Long userId = TokenUtils.getUserIdFromToken(token);
         boardService.deleteBoard(boardId, userId);
