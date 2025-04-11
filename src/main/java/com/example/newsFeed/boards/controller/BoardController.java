@@ -59,16 +59,16 @@ public class BoardController {
     //findAllFriends
     @GetMapping("/followFeed")
     public List<BoardResponseDto> getFollowFeedBoardAll(HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long userId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long userId = tokenUtils.getUserIdFromToken(token);
         return boardService.getFollowFeedBoardAll(userId);
     }
 
     //추가
     @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long userId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long userId = tokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.createBoard(boardRequestDto, userId);
         return ResponseEntity.ok(dto);
     }
@@ -76,8 +76,8 @@ public class BoardController {
     //수정
     @PutMapping("/{boardId}")
     public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long userId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long userId = tokenUtils.getUserIdFromToken(token);
         BoardResponseDto dto = boardService.updateBoard(boardRequestDto, boardId, userId);
         return ResponseEntity.ok(dto);
     }
@@ -85,8 +85,8 @@ public class BoardController {
     //삭제
     @DeleteMapping("/{boardId}")
     public ResponseEntity<String> deleteBoard(@PathVariable Long boardId, HttpServletRequest request) {
-        String token = TokenUtils.getAccessToken(request);
-        Long userId = TokenUtils.getUserIdFromToken(token);
+        String token = tokenUtils.getAccessToken(request);
+        Long userId = tokenUtils.getUserIdFromToken(token);
         boardService.deleteBoard(boardId, userId);
         return ResponseEntity.ok("삭제완료");
     }
