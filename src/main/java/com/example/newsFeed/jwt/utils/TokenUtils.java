@@ -51,7 +51,7 @@ public class TokenUtils {
     }
 
     // JWT에서 userId 추출
-    public static Long getUserIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         try {
             Jws<Claims> jwt = Jwts.parser()
                     .verifyWith(key)
@@ -66,15 +66,15 @@ public class TokenUtils {
     }
 
     //HttpServletRequest에서 accessToken을 가져오는 메서드
-    public static String getAccessToken(HttpServletRequest request) {
+    public String getAccessToken(HttpServletRequest request) {
         return  getTokenWithVerification(request, "accessToken");
     }
     //HttpServletRequest에서 refreshToken을 가져오는 메서드
-    public static String getRefreshToken(HttpServletRequest request) {
+    public String getRefreshToken(HttpServletRequest request) {
         return getTokenWithVerification(request, "refreshToken");
     }
     //HttpServletRequest에서 매개 타입별 Token을 가져오는 메서드
-public static String getTokenWithVerification(HttpServletRequest request, String tokenType) {
+public String getTokenWithVerification(HttpServletRequest request, String tokenType) {
     Cookie[] cookies = request.getCookies();
 
     if (cookies == null) {
@@ -88,14 +88,9 @@ public static String getTokenWithVerification(HttpServletRequest request, String
             .orElseThrow(() -> new CustomException(Errors.UNAUTHORIZED_ACCESS, tokenType + " 쿠키가 존재하지 않습니다. 재요청해주세요!"));
 }
 
-    // 만료일이 현재 날짜 이전인 경우 ExpiredJwtException 예외를 throws 한다.
-    // 그 외 Jwt예외들 throw 한다.
+    // token을 parsing하면서 그 외 Jwt예외들 throw 한다.
     public void validateTokenOrThrow(String token) throws JwtException {
-        Jws<Claims> claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
-
-        if (claims.getPayload().getExpiration().before(new Date())) {
-            throw new ExpiredJwtException(null, null, "토큰이 만료되었습니다.");
-        }
+        Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
     }
 
     public void refreshAccessTokenCookie(HttpServletResponse response, String token) {
