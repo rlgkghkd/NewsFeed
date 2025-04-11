@@ -10,11 +10,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.PatternMatchUtils;
-
 import java.io.IOException;
-
-import static com.example.newsFeed.jwt.utils.TokenUtils.getAccessToken;
-import static com.example.newsFeed.jwt.utils.TokenUtils.getRefreshToken;
 
 public class JwtFilter implements Filter {
 
@@ -43,60 +39,52 @@ public class JwtFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String requestURI = request.getRequestURI();
 
-        // 화이트리스트는 인증 없이 통과
-        if (isWhiteList(requestURI)) {
-            filterChain.doFilter(servletRequest, servletResponse);
-            return;
-        }
-        String accessToken = getAccessToken(request);
+        // 화이트리스트가 아닌 경우에만 토큰 검증 로직 실행
+        if (!isWhiteList(requestURI)) {
 
-        // accessToken null 검증
-        if (accessToken == null) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "AccessToken이 존재하지 않습니다.");
-            return;
-        }
-        try {
-            // accessToken 유효성 검증
-            tokenUtils.validateTokenOrThrow(accessToken);
+            // getAccessToken 메서드 내부에서 쿠키,accessToken의 null검증 처리가 되어있다.
+            String accessToken = tokenUtils.getAccessToken(request);
 
-            // accessToken 만료 → refreshToken으로 재발급 시도
-        } catch (ExpiredJwtException e) {
-            String refreshToken = getRefreshToken(request);
-
-            // refreshToken null 검증
-            if (refreshToken == null) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 존재하지 않습니다.");
-                return;
-            }
             try {
-                //refreshToken 유효성 검증
-                tokenUtils.validateTokenOrThrow(refreshToken);
+                // accessToken 유효성 검증
+                tokenUtils.validateTokenOrThrow(accessToken);
 
-                //refreshToken으로 Db에서 TokenRedis를 찾은 후 userId를 추출
-                Long userId = tokenRedisService.findUserIdByRefreshToken(refreshToken);
+                // accessToken 만료 → refreshToken으로 재발급 시도
+            } catch (ExpiredJwtException e) {
 
-                // 추출된 userId로 재발급용 accessToken을 생성
-                String newAccessToken = tokenUtils.createAccessToken(userId);
+                // getRefreshToken 메서드 내부에서 쿠키,refreshToken의 null검증 처리가 되어있다.
+                String refreshToken = tokenUtils.getRefreshToken(request);
 
-                // access토큰을 쿠키에 담아 HttpServletResponse Header에 재발급
-                tokenUtils.refreshAccessTokenCookie(response, newAccessToken);
+                try {
+                    // refreshToken 유효성 검증
+                    tokenUtils.validateTokenOrThrow(refreshToken);
 
-                // refreshToken이 만료가 된 경우 Db의 TokenRedis를 삭제하고 재로그인 요구 응답
-            } catch (ExpiredJwtException ex) {
-                tokenRedisService.deleteTokenRedisByFresh(refreshToken);
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "RefreshToken이 만료되었습니다. 다시 로그인 해주세요.");
-                return;
+                    // refreshToken으로 Db에서 TokenRedis를 찾은 후 userId를 추출
+                    Long userId = tokenRedisService.findUserIdByRefreshToken(refreshToken);
 
-                // 만료 이외의 refreshToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
+                    // 추출된 userId로 재발급용 accessToken을 생성
+                    String newAccessToken = tokenUtils.createAccessToken(userId);
+
+                    // access토큰을 쿠키에 담아 HttpServletResponse Header에 재발급
+                    tokenUtils.refreshAccessTokenCookie(response, newAccessToken);
+
+                    // refreshToken이 만료가 된 경우 Db의 TokenRedis를 삭제하고 재로그인 요구 응답
+                } catch (ExpiredJwtException ex) {
+                    tokenRedisService.deleteTokenRedisByFresh(refreshToken);
+                    handleTokenException(response, ex, "RefreshToken");
+                    return;
+
+                    // 만료 이외의 refreshToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
+                } catch (Exception ex) {
+                    handleTokenException(response, ex, "RefreshToken");
+                    return;
+                }
+
+                // 만료 이외의 accessToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
             } catch (Exception ex) {
-                handleTokenException(response, ex, "RefreshToken");
+                handleTokenException(response, ex, "AccessToken");
                 return;
             }
-
-            // 만료 이외의 accessToken 관련 예외들은 각 예외에 따른 메세지를 응답(HttpStatus.403)
-        } catch (Exception ex) {
-            handleTokenException(response, ex, "AccessToken");
-            return;
         }
 
         // 다음 Filter가 없으므로 dispatcher Servlet을 호출
