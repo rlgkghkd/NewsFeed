@@ -3,6 +3,7 @@ package com.example.newsFeed.global.filter;
 import com.example.newsFeed.global.exception.ErrorResponseDto;
 import com.example.newsFeed.global.exception.Errors;
 import com.example.newsFeed.jwt.service.UserTokenService;
+import com.example.newsFeed.jwt.utils.JwtRequestWrapper;
 import com.example.newsFeed.jwt.utils.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -89,8 +90,13 @@ public class JwtFilter implements Filter {
                 // 재발급된 accessToken을 쿠키에 담아 응답
                 tokenUtils.refreshAccessTokenCookie(response, newAccessToken);
 
-                // 재발급 후 다음 필터로 넘김
-                filterChain.doFilter(servletRequest, servletResponse);
+                // 재발급한 accessToken을 포함한 커스텀 HttpServletRequest 생성
+                // 이 래퍼는 기존 request의 쿠키 배열을 복사하되, accessToken 값을 새로 갱신함
+                // 따라서 이후 컨트롤러나 필터에서도 재발급된 accessToken을 곧바로 사용할 수 있음
+                HttpServletRequest wrappedRequest = new JwtRequestWrapper(request, newAccessToken);
+
+                // 갱신된 accessToken이 담긴 wrappedRequest로 필터 체인을 계속 진행
+                filterChain.doFilter(wrappedRequest, response);
                 return;
 
             } catch (ExpiredJwtException ex) {
