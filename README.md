@@ -107,7 +107,7 @@
 | 사용자 | 400 | U001 | Email is Duplicated | 이메일이 중복됩니다. |
 | 사용자 | 404 | U002 | User Not Found | 사용자를 찾을 수 없습니다. |
 | 사용자 | 400 | U003 | Invalid Password | 비밀번호가 잘못되었습니다. |
-| 사용자 | 400 | U004 | Unauthorized Access | 권한이 없습니다. |
+| 사용자 | 401 | U004 | Unauthorized Access | 권한이 없습니다. |
 
 ## Board 예외 처리
 
