@@ -1,7 +1,5 @@
 # NewsFeed
 
-## 뉴스피드 S.A.
-
 ### 업무 분담
 
 ```java
@@ -10,7 +8,12 @@
 박효성 : 사용자 인증, 글로벌 예외, 발표
 성우영 : 게시물 관리, 댓글 기능
 ```
-
+## 적용 기술
+<p align="left">
+  <img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white">   
+  <img src="https://img.shields.io/badge/JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white">   
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+</p>
 ---
 
 ## 와이어 프레임
